@@ -17,9 +17,9 @@ function App() {
         >
           
         </a>
-        Learn React
-          test
+        
       </header>
+      주종민 테스트중입니다 
     </div>
   );
 }
