@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cute+Font&family=Gasoek+One&family=Jua&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200..900&display=swap');
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,3 +13,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+#Gasoek {
+  font-family: "Gasoek One", serif;
+}
+
+
+#jua {
+  font-family: "Jua", serif;
+}
+
+#noto {
+  font-family: "Noto Serif KR", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+

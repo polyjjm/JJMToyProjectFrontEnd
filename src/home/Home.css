@@ -1,0 +1,52 @@
+#main-image {
+    background-size: 1500px 500px;
+    background-image : url('../img/backimages.jpg');
+    position: relative;
+}
+
+#main-image::before {
+    content: "";
+    opacity: 0.3;
+    position: absolute;
+    top : 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: #000;
+}
+
+#main-image span {
+    color: #fff;
+    position: relative;
+}
+
+
+svg,span {
+    vertical-align: 'middle'
+
+}
+svg {
+    width:1.5em;
+    height:1.5em;
+}
+
+
+
+#hoverImage {
+	-webkit-transform: scale(1);
+	transform: scale(1);
+	-webkit-transition: .5s ease-in-out;
+	transition: .5s ease-in-out;
+}
+#hoverImage:hover {
+	-webkit-transform: scale(1.1);
+	transform: scale(1.1);
+}
+
+
+/*
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cute+Font&family=Gasoek+One&display=swap" rel="stylesheet">
+*/
+

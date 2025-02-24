@@ -1,0 +1,32 @@
+.title {
+    font-size: 50px;
+    -webkit-line-clamp: 1;
+    font-weight: bolder !important;
+    
+}
+.word {
+    margin:100px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    line-height: 1.0;
+    text-align: left;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3 ;
+    -webkit-box-orient: vertical;
+}
+
+.ck-editor__editable {
+    min-height: 1000px;
+}
+
+
+.input-file-button{
+    padding: 6px 25px;
+    background-color:#FF6600;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+  }
