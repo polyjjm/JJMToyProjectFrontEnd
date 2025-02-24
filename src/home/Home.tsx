@@ -24,6 +24,7 @@ type HomeProps = {
     scrollRef1: React.RefObject<HTMLDivElement>,
     scrollRef2: React.RefObject<HTMLDivElement>,
     scrollRef3: React.RefObject<HTMLDivElement>
+    
 };
 
 export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2, scrollRef3}) => {    
