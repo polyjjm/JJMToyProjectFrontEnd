@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const url = 'http://localhost:8020';
-//const url = 'http://3.36.127.136:8020';
+//const url = 'http://localhost:8020';
+const url = 'http://3.36.127.136:8020';
 export async function post (_url:String  , data:Object){
     
     const jsonData:any = JSON.parse(JSON.stringify(data))
