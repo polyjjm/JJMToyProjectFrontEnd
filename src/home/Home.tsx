@@ -24,7 +24,7 @@ type HomeProps = {
     scrollRef1: React.RefObject<HTMLDivElement>,
     scrollRef2: React.RefObject<HTMLDivElement>,
     scrollRef3: React.RefObject<HTMLDivElement>
-    
+
 };
 
 export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2, scrollRef3}) => {    
@@ -45,7 +45,7 @@ export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2,
             <Box   id="main-image" display="flex" style={{ height:'500px' ,width:'100%' ,textAlign:'center' ,justifyContent: 'center'}}>
                 <div style={{marginTop:'60px' ,lineHeight:'40px'}}>
                     <span id='jua' style={{color: '#fff',fontSize:'40px' }}>
-                    -주종민-
+                    -주종민- TEST
                     <br/>
                     웹개발 포트폴리오 사이트입니다 
                     </span>
