@@ -49,7 +49,6 @@ export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2,
                     <br/>
                     웹개발 포트폴리오 사이트입니다 
                     웹개발 포트폴리오 사이트입니다 
-                    웹개발 포트폴리오 사이트입니다 
                     </span>
                     <br/>
                     <div style={{marginTop:'50px'}}></div>
