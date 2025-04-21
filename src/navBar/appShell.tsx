@@ -20,7 +20,7 @@ import {post} from '../common/common'
 import { UseSelector, useSelector } from 'react-redux';
 import { Button, ButtonGroup, Menu, MenuItem } from '@mui/material';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 interface Props {
   /**
@@ -79,7 +79,10 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
     async function fetch() {
         
       menuList = await post('/menu/list' , {'currentPage' : 1});
-      setMenu(menuList);
+      if(menuList){
+        setMenu(menuList);
+      }
+      
     };
     fetch();
   
@@ -90,7 +93,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
 
   
   
-  let menuName = [{name : '홈',domain : '/'} ,{ name : '게시판' , domain : 'board'}];
+  let menuName = [{name : '홈',domain : '/'} ,{ name : '게시판' , domain : 'board'} ,{name : 'md게시판' , domain:'/common/mdEditor'}];
   const handleDrawerClose = () => {
     setIsClosing(true);
     setMobileOpen(false);
@@ -145,14 +148,14 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
           <Typography variant="h6" noWrap component="div" width="100%" >
             <div style={{ width:'100%' ,display:"flex"}}>
               <Box width="60%" display="flex">
-              <h3 id='jua' style={{color:'black'}}>JJM Portfolio</h3> 
+              <h3  style={{color:'black'}}>JJM Portfolio</h3> 
               </Box>
               <Box marginTop="20px">
                 <ButtonGroup variant="text" aria-label="Basic button group" >
-                  <Button id='jua' onClick={() => handleClick(scrollRef0)} style={{color : 'black', fontWeight:'bolder'}}>About me</Button>
-                  <Button id='jua' onClick={() => handleClick(scrollRef1)} style={{color : 'black', fontWeight:'bolder'}}>Skills</Button>
-                  <Button id='jua' onClick={() => handleClick(scrollRef2)} style={{color : 'black', fontWeight:'bolder'}}>Archiving</Button>
-                  <Button id='jua' onClick={() => handleClick(scrollRef3)} style={{color : 'black', fontWeight:'bolder'}}>Career</Button>
+                  <Button  onClick={() => handleClick(scrollRef0)} style={{color : 'black', fontWeight:'bolder'}}>About me</Button>
+                  <Button  onClick={() => handleClick(scrollRef1)} style={{color : 'black', fontWeight:'bolder'}}>Skills</Button>
+                  <Button  onClick={() => handleClick(scrollRef2)} style={{color : 'black', fontWeight:'bolder'}}>Archiving</Button>
+                  <Button  onClick={() => handleClick(scrollRef3)} style={{color : 'black', fontWeight:'bolder'}}>Career</Button>
                 </ButtonGroup>
               </Box>
             </div>
@@ -161,14 +164,14 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
       </AppBar>
       <Box sx={{display:'flex'}}>        
         <Drawer variant="permanent">
-          <DrawerHeader>
-            <Box sx={{width:{sm : drawerWidth} , marginTop:'5px'}}>
-              <img src={process.env.PUBLIC_URL + '/favicon.ico'} />
-              <p style ={{fontSize:'15px'}}>wnwhd788@gmail.com</p>
+          <DrawerHeader style={{ backgroundColor: "#202020"}}>
+            <Box sx={{width:{sm : drawerWidth} , marginTop:'5px',textAlign:'center'}}>
+              <img src={process.env.PUBLIC_URL + '/KakaoTalk_20250303_001054029.jpg'} style={{width:'80px',borderRadius: '50px',marginTop:'15px'}}/>
+              <p style={{fontSize:'15px' ,color:'#9B9B9B'}}>wnwhd788@gmail.com</p>
             </Box>
           </DrawerHeader>
           <Divider />
-          <List  sx={{width:{sm : drawerWidth}}}>
+          <List   style={{backgroundColor: "#202020" ,height:'100vh'}}>
             {menu.map((value , index) => (
               <ListItem key={value.menu_name} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton 
@@ -176,6 +179,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
                     minHeight: 48,
                     justifyContent:'initial',
                     px: 2.5,
+                    color:'#9B9B9B'
                   }}
                   href={value.menu_url}
                 >

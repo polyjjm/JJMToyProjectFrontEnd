@@ -5,11 +5,15 @@ import App from './main/mainComponent';
 import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { Provider } from 'react-redux';
+import { createTheme, ThemeProvider } from '@mui/material';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement); 
+const theme = createTheme({
+    
+})
 root.render(
-    <Provider store={store}>
-    <App/>
+    <Provider  store={store}>
+    <App />
     </Provider>
 );
 

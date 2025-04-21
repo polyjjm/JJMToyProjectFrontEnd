@@ -29,4 +29,58 @@
     border-radius: 4px;
     color: white;
     cursor: pointer;
-  }
+}
+
+
+#wordStyle {
+    width: 450px;
+    display: -webkit-box;
+    word-wrap: break-word;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-left:5px;
+    margin-top:-10px;
+    min-height: 90px;
+    max-height: 110px;
+    float:left;
+    text-align: left;
+    
+}
+
+
+#wordStyleImg {
+    width: 270px;
+    display: -webkit-box;
+    word-wrap: break-word;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-left:10px;
+    min-height: 90px;
+    max-height: 110px;
+    text-align: left;
+    margin-top: -10px;
+    
+}
+
+.skeleton {
+    background-color: #a5a5a5;
+    animation: skeleton-animation 1s infinite linear;
+}
+  
+@keyframes skeleton-animation {
+    0% {
+      opacity: 0.2;
+    }
+  
+    50% {
+      opacity: 0.5;
+    }
+  
+    100% {
+      opacity: 0.2;
+    }
+}
