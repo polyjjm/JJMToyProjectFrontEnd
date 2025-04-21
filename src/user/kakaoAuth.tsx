@@ -18,6 +18,7 @@ export default function kakoAuth(){
         //_xCo54c6MapvtVmUeA-NDGfAh2LxCjqDk9KhCTS6kM4GBtnUUSqecwAAAAQKDSHZAAABlbQLeuuBPKUF0hG4dQ
         console.log(code);
         console.log("주종민 확인중");
+        console.log(returnResult)
         localStorage.setItem("token" , returnResult.token)
         localStorage.setItem("user_email" , returnResult.id)
         navigate(-2)
