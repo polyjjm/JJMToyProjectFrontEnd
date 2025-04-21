@@ -23,6 +23,9 @@ const mainComponent: React.FC = () => {
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex' , backgroundColor: '#F8F9FA'}}>
+        <head>
+          <meta name="google-adsense-account" content="ca-pub-8340992511391681"/>
+        </head>
         <NavBar  scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>
         <Box style={{width:'100%'}}>
         <Box style={{display:'flex' ,justifyContent: 'center'}}>
