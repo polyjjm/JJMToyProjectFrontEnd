@@ -23,13 +23,17 @@ const mainComponent: React.FC = () => {
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex' , backgroundColor: '#F8F9FA'}}>
-        <head>
-          <meta name="google-adsense-account" content="ca-pub-8340992511391681"/>
-        </head>
         <NavBar  scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>
         <Box style={{width:'100%'}}>
         <Box style={{display:'flex' ,justifyContent: 'center'}}>
-          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px',marginLeft:'40px'}}><meta name="google-adsense-account" content="ca-pub-8340992511391681"/></Box>
+          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px',marginLeft:'40px'}}>
+              <ins className="adsbygoogle"
+              style={{ display: 'block' }}
+              data-ad-client="ca-pub-8340992511391681"   // 👉 너의 퍼블리셔 ID로 변경
+              data-ad-slot="google-adsense-account"         // 👉 광고 단위 ID로 변경
+              data-ad-format="auto"
+              data-full-width-responsive="true"></ins>
+          </Box>
           <Box style={{width:'1200px', margin:'auto',minHeight:'850px'}}>  
               <Toolbar /> 
               <Routes>
@@ -44,7 +48,14 @@ const mainComponent: React.FC = () => {
               </Routes>
               
           </Box>
-          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px'}}><meta name="google-adsense-account" content="ca-pub-8340992511391681"/></Box>
+          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px'}}>
+            <ins className="adsbygoogle"
+                style={{ display: 'block' }}
+                data-ad-client="ca-pub-8340992511391681"   // 👉 너의 퍼블리셔 ID로 변경
+                data-ad-slot="google-adsense-account"         // 👉 광고 단위 ID로 변경
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+          </Box>
         </Box>
         <Footer/>    
         </Box>    
