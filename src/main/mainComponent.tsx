@@ -22,22 +22,26 @@ const mainComponent: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <Box sx={{ display: 'flex' , backgroundColor: '#F8F9FA' }}>
-        <NavBar scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>
+      <Box sx={{ display: 'flex' , backgroundColor: '#F8F9FA'}}>
+        <NavBar  scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>
         <Box style={{width:'100%'}}>
-        <Box style={{width:'1200px', margin:'auto',minHeight:'850px'}}>  
-          <Toolbar /> 
-            <Routes>
-              <Route path='/login/kakao/oauth' element={<KakaoAuth />}/>
-              <Route path='/' element={<Home scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>} />
-              <Route path='/signin' element={<Signin/>} />
-              <Route path='/board' element={<Board/>} />
-              <Route path='/board/boardInsert' element={<BoardInsert/>}/>
-              <Route path='/board/boardPreview' element={<BoardDetail/>} />
-              <Route path='/board/boardDetail' element={<BoardDetail/>} />
-              <Route path='/board/boardDetail' element={<BoardDetail/>} />
-            </Routes>
-            
+        <Box style={{display:'flex' ,justifyContent: 'center'}}>
+          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px',marginLeft:'40px'}}><meta name="google-adsense-account" content="ca-pub-8340992511391681"/></Box>
+          <Box style={{width:'1200px', margin:'auto',minHeight:'850px'}}>  
+              <Toolbar /> 
+              <Routes>
+                <Route path='/login/kakao/oauth' element={<KakaoAuth />}/>
+                <Route path='/' element={<Home scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>} />
+                <Route path='/signin' element={<Signin/>} />
+                <Route path='/board' element={<Board/>} />
+                <Route path='/board/boardInsert' element={<BoardInsert/>}/>
+                <Route path='/board/boardPreview' element={<BoardDetail/>} />
+                <Route path='/board/boardDetail' element={<BoardDetail/>} />
+                <Route path='/board/boardDetail' element={<BoardDetail/>} />
+              </Routes>
+              
+          </Box>
+          <Box style={{display:'flex',border:'1px solid green',height:'1200px',width:'200px',marginTop:'200px'}}><meta name="google-adsense-account" content="ca-pub-8340992511391681"/></Box>
         </Box>
         <Footer/>    
         </Box>    

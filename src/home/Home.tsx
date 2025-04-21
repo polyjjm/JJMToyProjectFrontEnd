@@ -40,8 +40,8 @@ export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2,
     const ref = useRef <null | HTMLDivElement[] > ([]);
 
     return (
-        
-        <div  style={{display:'flex' ,width:'100%', flexWrap : 'wrap' ,fontFamily: "'Jua' , serif"}}>
+    
+        <div  style={{display:'flex' ,width:'100%', flexWrap : 'wrap' ,fontFamily: "'Jua' , serif",border:'1px solid red'}}>
             <Box   id="main-image" display="flex" style={{ height:'500px' ,width:'100%' ,textAlign:'center' ,justifyContent: 'center'}}>
                 <div style={{marginTop:'60px' ,lineHeight:'40px'}}>
                     <span  style={{color: '#fff',fontSize:'40px' }}>
@@ -276,6 +276,7 @@ export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2,
                 </Box>
             </Box>
         </div>
+
     )
 
 };
