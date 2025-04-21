@@ -23,6 +23,9 @@ const mainComponent: React.FC = () => {
   return (
     <BrowserRouter>
       <Box sx={{ display: 'flex' , backgroundColor: '#F8F9FA'}}>
+      <head>  
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8340992511391681" crossOrigin="anonymous"></script>
+      </head>
         <NavBar  scrollRef0={scrollRef0} scrollRef1={scrollRef1} scrollRef2={scrollRef2} scrollRef3={scrollRef3}/>
         <Box style={{width:'100%'}}>
         <Box style={{display:'flex' ,justifyContent: 'center'}}>
