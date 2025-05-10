@@ -14,14 +14,14 @@ const ChatRoom = () => {
   const [message, setMessage] = useState<string>("");
   const clientRef = useRef<Client | null>(null);
   const roomId = 123; // 예시 방 번호
-
+  const url = `${window.location.origin.replace(/:\d+$/, '')}:8020`
   // 1. 이전 메시지 불러오기
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
+    
     try {
-      const res = await fetch(`http://localhost:8020/api/chat/history/${roomId}`, {
+      const res = await fetch(url + `/api/chat/history/${roomId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,7 +42,7 @@ const ChatRoom = () => {
     fetchMessages();
 
     const client = new Client({
-      webSocketFactory: () => new SockJS("http://localhost:8020/ws-chat"),
+      webSocketFactory: () => new SockJS(url + "/ws-chat"),
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
       onConnect: () => {
