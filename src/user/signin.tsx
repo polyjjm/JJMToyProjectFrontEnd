@@ -10,7 +10,7 @@ export default function signin(){
         //const redirect_uri =  process.env.REACT_APP_KAKAO_REDIREACT_URI;
         //const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:80/login/kakao/oauth`
         //const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:3000/login/kakao/oauth`
-        const redirect_uri =  `http://3.36.127.136:8020/login/kakao/oauth`
+        const redirect_uri =  `http://jjmdev.co.kr/login/kakao/oauth`
         
         //const client_id = process.env.REACT_APP_KAKAO_REST_API_KEY;
         const client_id = "663f118997d31c1c7c7b2dcce78417b2";
