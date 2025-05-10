@@ -38,6 +38,7 @@ const object = {};
 interface boardType {
     board_no : number | 0,
     board_title : string | undefined,
+    board_userName :string | undefined,
     board_writer : string | undefined,
     board_changeThumbnail : string | TrustedHTML,
     board_content : string | TrustedHTML,
@@ -48,6 +49,7 @@ interface boardType {
     board_imgList: string | '',
     board_hashTag : string | undefined ,
     board_hashTags : Array<string> | []
+    returnUrl : string | undefined
 }
 interface pageType {
     currentPage : number,
@@ -167,7 +169,7 @@ export default function board(){
         try {
           
           const addBoadrList = await postBoardSearch('/board/select' , {'scrollIndex' : page} );
-          
+          console.log(addBoadrList,'보더확인')
           for(let idx in addBoadrList.data){
             if(addBoadrList.data[idx].board_hashTag){
                 addBoadrList.data[idx].board_hashTags = addBoadrList.data[idx].board_hashTag.split(',');
@@ -195,7 +197,7 @@ export default function board(){
 
     const clicked = (e :boardType) => {
         console.log(e);
-        navigate("/board/boardDetail", { state: { boardList: e } });
+        navigate("/board/boardDetail", { state: { boardList: e }});
     }
     const search = async (e:any) => {
         
@@ -329,10 +331,7 @@ export default function board(){
         }
     }
     const modalClose = async() =>{ 
-
-      
-           // setModalStatus(false);
-        
+           // setModalStatus(false);     
     }
 
     return (
@@ -425,10 +424,10 @@ export default function board(){
                                         </Grid>
                                     </Grid>
                                     <Grid style={{display:'flex'}}>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'100px' ,textAlign:'left',marginLeft:'5px',paddingTop:'5px'}}>
+                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'80px' ,textAlign:'left',marginLeft:'5px',paddingTop:'5px'}}>
                                                     <span style={{verticalAlign: 'middle', fontSize:'15px'}}>{value.board_date.substr(0,10)}</span>
                                                 </Typography>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'350px' ,textAlign:'left',float:'left'}}>
+                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'330px' ,textAlign:'left',float:'left'}}>
                                                         <span id='hashTagList' style={{margin:'auto',height:'40px',float:'left'}}> 
                                                             {
                                                                 value.board_hashTags &&  value.board_hashTags.map((hashTag:string , idx:number) =>{
@@ -459,7 +458,7 @@ export default function board(){
                                                             }
                                                         </span>
                                                 </Typography>
-                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'70px',textAlign:'right'}}>
+                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'100px',textAlign:'right'}}>
                                                     <RemoveRedEyeIcon style={{verticalAlign: 'middle', fontSize:'15px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_hit}</span>
                                                     <ThumbUpIcon style={{verticalAlign: 'middle' ,fontSize:'15px' ,marginLeft:'10px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_like} </span>
                                                 </Typography>
@@ -492,10 +491,10 @@ export default function board(){
 
                                     </Grid>
                                     <Grid style={{display:'flex'}}>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'100px' ,textAlign:'left',marginLeft:'5px'}}>
+                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'80px' ,textAlign:'left',marginLeft:'5px'}}>
                                                     <span style={{verticalAlign: 'middle', fontSize:'15px'}}>{value.board_date.substr(0,10)}</span>
                                                 </Typography>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'350px' ,textAlign:'left',float:'left',marginTop:'-5px'}}>
+                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'330px' ,textAlign:'left',float:'left',marginTop:'-5px'}}>
                                                         <span id='hashTagList' style={{margin:'auto',height:'40px',float:'left'}}> 
                                                             {
                                                                 value.board_hashTags &&  value.board_hashTags.map((hashTag:string , idx:number) =>{
@@ -526,7 +525,7 @@ export default function board(){
                                                             }
                                                         </span>
                                                 </Typography>
-                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'70px',textAlign:'right'}}>
+                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'100px',textAlign:'right'}}>
                                                     <RemoveRedEyeIcon style={{verticalAlign: 'middle', fontSize:'15px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_hit}</span>
                                                     <ThumbUpIcon style={{verticalAlign: 'middle' ,fontSize:'15px' ,marginLeft:'10px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_like} </span>
                                                 </Typography>

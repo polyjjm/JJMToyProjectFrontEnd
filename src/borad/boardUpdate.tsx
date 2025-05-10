@@ -5,8 +5,9 @@ import MdEditor from "../common/mdEditor";
 import { styled } from '@mui/material/styles';
 import { postUpload } from "../common/common";
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
-import { useNavigate, useNavigationType } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { createBrowserHistory } from "history";
+import board from "./board";
 const Input = styled('input')({
   display: 'none',
   border:'2px solid red'
@@ -38,15 +39,15 @@ interface BoardState {
     board_content: string;
     board_userName: string | null;
     board_changeThumbnail: string;
-    boardImgList: any[];           // 구체적인 타입이 있다면 any 대신 사용
-    boardImgLegacyList: any[];
+    boardImgList: { idx: number; value: string }[];
+    boardImgLegacyList: { idx: number; value: string }[];
     board_hashTag: string;
+    board_hashTags : string[]
   }
 
 // CSS
 
-export default function boardInsert(){
-    const [open, setOpen] = useState(false);
+export default function boardUpdate(){
     const [textValue, setText] = useState(String);
     const [flagIndex, flagIndexSet] = useState(0);
     const [hashInputText, sethashInputText] = useState("");
@@ -58,12 +59,41 @@ export default function boardInsert(){
         board_changeThumbnail: '',
         boardImgList: [],
         boardImgLegacyList: [],
-        board_hashTag: ''
+        board_hashTag: '',
+        board_hashTags: []
     });
+    
+    const location = useLocation();
+     useEffect(() =>{
 
+
+        let reg = new RegExp(/<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/, "g");
+
+        const boardImg = location.state.boardList.board_content.match(reg);
+        
+        let tt = []
+        if(boardImg !== null){
+            for(let i = 0 ; i < boardImg.length;i++){                
+                reg  = new RegExp(/src=".*?"/, "g");
+                let srcValue = location.state.boardList.board_content.match(reg)
+                if(srcValue){
+                    boardList.boardImgLegacyList.push({idx: i , value : srcValue[0]});
+                    tt.push({idx: i , value : srcValue[0]});
+                }
+                
+            }
+            
+        }
+        setBoard({...location.state.boardList , boardImgLegacyList : tt});
+        console.log(boardList , 'eeeee')
+        if(location.state.boardList.board_hashTags){
+            sethashTagList(location.state.boardList.board_hashTags)
+        }
+        //수정 들어왔을때 최초 이미지 구분해줘야함 중간에 삭제 혹은 추가시 처리를 위하여
+            
+    },[])
     const [uploadFiles , setFiles] = useState<FormData>(new FormData);
     let editorValue:any;
-
     const changeTitle = (e:any) =>{
         const {value , name }  =e.target
         setBoard({...boardList , board_title : value});
@@ -80,6 +110,7 @@ export default function boardInsert(){
     const ChangeHashTage = async (hashList:Array<string>) =>{
 
         let stringHash = '';
+        console.log(hashList , '들어온 리스트 확인');
         for(let i = 0 ; i < hashList.length ; i++) {
             stringHash += hashList[i]  +  ','
             console.log(stringHash);
@@ -164,8 +195,8 @@ export default function boardInsert(){
             console.log(value);
         }
         
-        
-        await postUpload('/board/subMit' , uploadFiles);
+        console.log(boardList , '마지막파일확인 레거시 확인용')
+        await postUpload('/board/update' , uploadFiles);
 
         flagIndexSet(1);
         
@@ -249,7 +280,10 @@ export default function boardInsert(){
     }
 
     const deletHashTag = (e:any , idx :number) =>{
+        console.log(idx , '해시태그 수정 확인중')
         hashTagList.splice(idx ,1)
+        console.log(hashTagList , '해시태그 수정 확인중222')
+        setBoard({...boardList , board_hashTag : hashTagList.join(",")})
         sethashTagList((prevHashTags) => {
             return [...new Array(...prevHashTags)]
         });
@@ -258,7 +292,7 @@ export default function boardInsert(){
     return (
         <Box sx={{margin: 'auto', maxWidth: 1200}}>
 
-            <Box sx={{marginTop:'50px',fontWeight : 'bold' ,  marginBottom:'50px', width:'100%' ,textAlign:'right' , fontSize :'30px' ,borderBottom : '2px solid #E4EDFC'}}>게시글 등록</Box>
+            <Box sx={{marginTop:'50px',fontWeight : 'bold' ,  marginBottom:'50px', width:'100%' ,textAlign:'right' , fontSize :'30px' ,borderBottom : '2px solid #E4EDFC'}}>게시글 수정</Box>
             <Box sx={{ margin:"auto",width:"100%" , paddingBottom:'20px'}}>
                 <TextField
                 sx={{width:"100%"}}
@@ -266,7 +300,7 @@ export default function boardInsert(){
                 color="warning"
                 label="제목"
                 id="title"
-                defaultValue=""
+                value={boardList.board_title}
                 placeholder="제목을 입력해주세요"
                 name="title"
                 onChange={changeTitle}
@@ -287,6 +321,7 @@ export default function boardInsert(){
                         focused
                         multiline
                         rows={4}
+                        value={boardList.board_changeThumbnail}
                         inputProps={{maxLength : 150}}
 
                     />
@@ -334,11 +369,11 @@ export default function boardInsert(){
                 </Box>
             </Box>
             <Box sx={{paddingTop:'10px'}}>
-                <MdEditor value={textValue} onChange={eidtorValue} boardList={boardList} />
+                <MdEditor value={boardList.board_content} onChange={eidtorValue} boardList={boardList} />
             </Box>
             <Box sx={{textAlign : 'center' , width:'100%' , marginTop:'50px'}}>
                 <Button variant="outlined" sx={{marginRight:'10px'}} onClick={() => {history.back()}}>취소</Button>
-                <Button variant="contained" onClick={subMit}>등록</Button>
+                <Button variant="contained" onClick={subMit}>수정</Button>
             </Box>
         </Box>
     )

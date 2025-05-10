@@ -11,7 +11,7 @@ type Props = {
 
 const Editor : React.FC<Props> = ({onChange}) => { // (1)
     const [flag, setFlag] = useState(false);
-
+    debugger;
     const customUploadAdapter = (loader:any) => { // (2)
         return {
             upload(){
@@ -25,10 +25,11 @@ const Editor : React.FC<Props> = ({onChange}) => { // (1)
                                 .then((res) => {
                                     if(!flag){
                                         setFlag(true);
-                                        onChange(res);
+                                        //onChange(res);
                                         //setImage(res.data.filename);
-                                        console.log(res, '리턴데이터확인');
+                                        
                                     }
+                                    
                                     //여기서 데이터저장 해야함
                                     //console.log(res, '리턴데이터확인');
                                     resolve({

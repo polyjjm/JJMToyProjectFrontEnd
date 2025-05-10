@@ -3,11 +3,8 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { UNSAFE_NavigationContext as NavigationContext, useLocation } from 'react-router-dom';
 import type { History, Blocker, Transition } from 'history';
 
-//const url = 'http://localhost:8020';
 let Authorization:any;
-//localStorage.setItem('token' ,"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3bndoZDc4OUBuYXZlci5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0NDM5NDE2MywiZXhwIjoxNzQ0Mzk0NzYzfQ.MfokC9g4NPIUaJUTG4HgPG8BEeyTd8Aquu4r47FZToDvdWfHNrtKU5smdSpDGcn32r7ezn74GAARbFJkBSaVoA")
-console.log(localStorage.getItem("user_email"))
-console.log(localStorage.getItem("token"))
+
 if(localStorage.getItem('token')){
     Authorization = {'Authorization': 'Bearer ' + localStorage.getItem('token')}
 }    
@@ -47,28 +44,34 @@ export async function postBoardSearch (_url:String  , data:Object){
         //console.log(response.data);
         return response.data;
     }).catch(function(error){
-        console.log("error", error);
-        reissue()
+        const returnData = JSON.parse(error.response.data)
+        if(returnData && returnData.code == '402'){
+            return reissue()
+        }
     });
     return response;
 }
 
 export async function postUpload (_url:String  , data:Object){
-
+    
     const config :Object = {"Content-Type": 'multipart/form-data;'};
     const response  = await axios({
         url : url+_url,
         method:'post',
         data,
         headers :{
-            'Content-Type': 'multipart/form-data;'
+            'Content-Type': 'multipart/form-data;',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
         withCredentials:false
     }).then(function (response){
         console.log(response.data);
         return response.data;
     }).catch(function(error){
-        console.log("error", error);
+        const returnData = JSON.parse(error.response.data)
+        if(returnData && returnData.code == '402'){
+            return reissue()
+        }
     });
     return response.data;
 }

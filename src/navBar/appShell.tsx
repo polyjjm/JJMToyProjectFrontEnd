@@ -16,9 +16,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { styled, useTheme, Theme, CSSObject} from '@mui/material/styles';
+import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import {post} from '../common/common'
 import { UseSelector, useSelector } from 'react-redux';
+import HomeIcon from '@mui/icons-material/Home';
 import { Button, ButtonGroup, Menu, MenuItem } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 200;
 
@@ -52,6 +56,7 @@ type navBarProps = {
 };
 
 export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRef2, scrollRef3} ,props:Props ) => {
+  const navigate  = useNavigate() ;
   const [menu , setMenu] =useState<Array<menu>>([]);
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -76,6 +81,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
   };
 
   useEffect(()=>{
+    console.log(localStorage.getItem('user_email') , '확인')
     async function fetch() {
         
       menuList = await post('/menu/list' , {'currentPage' : 1});
@@ -117,6 +123,10 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
   }));
+  const logOut  = () =>{
+    localStorage.removeItem('user_email');
+    navigate('/'); // 또는 navigate('/') 로 홈으로 보내기
+  }
 /**
    추후 DB 에서 메뉴 가져와서 뿌려주는걸로 변경 
 */
@@ -147,7 +157,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
           </IconButton>
           <Typography variant="h6" noWrap component="div" width="100%" >
             <div style={{ width:'100%' ,display:"flex"}}>
-              <Box width="60%" display="flex">
+              <Box width="60%" display="flex" href='/' component='a' style={{textDecoration: 'none', color: 'black' }}>
               <h3  style={{color:'black'}}>JJM Portfolio</h3> 
               </Box>
               <Box marginTop="20px">
@@ -158,7 +168,22 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
                   <Button  onClick={() => handleClick(scrollRef3)} style={{color : 'black', fontWeight:'bolder'}}>Career</Button>
                 </ButtonGroup>
               </Box>
+              <Box marginTop="20px" marginLeft='30px'>
+                { 
+                  localStorage.getItem('user_email') ? 
+                  <Box>
+                    <a style={{color:'black',fontSize:'14px'}}>id : {localStorage.getItem('user_email')}</a>
+                  <Button href='' style={{color:'black'}} onClick={logOut}>
+                  로그아웃
+                  </Button>  
+                  </Box>
+                : <Button href='/signin' style={{color:'black'}}>
+                    로그인
+                  </Button> 
+                }
+              </Box>
             </div>
+            
           </Typography>
         </Toolbar>
       </AppBar>
@@ -190,7 +215,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
                       justifyContent: 'center',
                     }}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    {index  === 0 ? <HomeIcon /> :  index === 1 ? <ContentPasteIcon /> : <InterpreterModeIcon />}
                   </ListItemIcon>
                   <ListItemText primary={value.menu_name} sx={{ opacity: 1 }} />
                 </ListItemButton>

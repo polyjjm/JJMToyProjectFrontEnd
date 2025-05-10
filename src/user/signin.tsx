@@ -8,7 +8,8 @@ export default function signin(){
         
         //window.location.href = kakaoURL
         //const redirect_uri =  process.env.REACT_APP_KAKAO_REDIREACT_URI;
-        const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:80/login/kakao/oauth`
+        //const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:80/login/kakao/oauth`
+        const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:3000/login/kakao/oauth`
         //const redirect_uri =  `http://jjmdev.co.kr:80/login/kakao/oauth`
         
         //const client_id = process.env.REACT_APP_KAKAO_REST_API_KEY;
@@ -26,15 +27,15 @@ export default function signin(){
 
     }
     return (
-        <Box  style={{display:'flex' , flexWrap : 'wrap' , backgroundColor: '#F8F9FA'}}>
-            <Box style={{margin:'auto' , marginTop:'150px',width:'600px' ,height:'500px' ,backgroundColor: '#fff'}}>
+        <Box  style={{display:'flex' , flexWrap : 'wrap'}}>
+            <Box style={{margin:'auto' , marginTop:'150px',width:'600px' ,height:'500px'}}>
                 <Box style={{width:'600px' ,height:'150px',textAlign:'center',marginTop:'150px'}}>
                     
                         <h1> 로그인 </h1>
                     
                 </Box>
                 <Box style={{margin :'auto',width:'600px',textAlign:'center'}}>
-                    <img onClick={e => kakaoLogin(e)} style={{cursor :'pointer'}} src={process.env.PUBLIC_URL + '/kakao_login.png'}  />
+                    <img onClick={e => kakaoLogin(e)}  src={process.env.PUBLIC_URL + '/kakao_login.png'}  />
                 </Box>
             </Box>
         </Box>
