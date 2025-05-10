@@ -9,8 +9,7 @@ if(localStorage.getItem('token')){
     Authorization = {'Authorization': 'Bearer ' + localStorage.getItem('token')}
 }    
 
-//const url = `${window.location.origin.replace(/:\d+$/, '')}:8020`;
-const url = 'http://3.36.127.136:8020'
+const url = `${window.location.origin.replace(/:\d+$/, '')}:8020`;
 console.log(url  ,'url 확인중 이게문제인거같은데')
 export async function post (_url:String  , data:Object){
     
