@@ -25,6 +25,7 @@ export default function ChatGpt() {
   };
 
   const handleSend = async (e: any) => {
+    console.log(process.env.REACT_APP_OPENAI_API_KEY ,'주종민 값확인');
     if (e.key === "Enter" && input.trim() !== "") {
       setLoading(true);
         //key 값은 안올라가나 
