@@ -27,7 +27,7 @@ export default function ChatGpt() {
   const handleSend = async (e: any) => {
     if (e.key === "Enter" && input.trim() !== "") {
       setLoading(true);
-
+        //key 값은 안올라가나 
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
