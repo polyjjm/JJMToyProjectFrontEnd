@@ -33,11 +33,11 @@ export default function kakoAuth(){
               const setValues ={
                   code :  code
               }
-              const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
+              //const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
 
-              localStorage.setItem("token" , returnResult.token)
-              localStorage.setItem("user_email" , returnResult.id)
-              window.location.href='/';
+              //localStorage.setItem("token" , returnResult.token)
+              //localStorage.setItem("user_email" , returnResult.id)
+              //window.location.href='/';
             } catch (error) {
               console.error('Error fetching data:', error);
             }

@@ -40,7 +40,7 @@ export async function postBoardSearch (_url:String  , data:Object){
     const response  = await axios.post(
         url+_url ,
         jsonData,
-        //{headers : Authorization}
+        {headers : Authorization}
     ).then(function (response){
         //console.log(response.data);
         return response.data;
