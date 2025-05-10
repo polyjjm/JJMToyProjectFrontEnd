@@ -11,18 +11,22 @@ export default function kakoAuth(){
         const setValues ={
             code :  code
         }
-        const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
+        console.log(code , '코드확인중')
+        //const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
         // console.log(code);
 
         // navigate(-2);
         //const code = new URL(window.location.href).searchParams.get('code');
         //_xCo54c6MapvtVmUeA-NDGfAh2LxCjqDk9KhCTS6kM4GBtnUUSqecwAAAAQKDSHZAAABlbQLeuuBPKUF0hG4dQ
-        console.log(code);
-        console.log("주종민 확인중");
-        console.log(returnResult)
-        localStorage.setItem("token" , returnResult.token)
-        localStorage.setItem("user_email" , returnResult.id)
-        navigate(-2)
+
+
+
+        // console.log(code);
+        // console.log("주종민 확인중");
+        // console.log(returnResult)
+        // localStorage.setItem("token" , returnResult.token)
+        // localStorage.setItem("user_email" , returnResult.id)
+        // navigate(-2)
         
     }
      useEffect(() =>{
