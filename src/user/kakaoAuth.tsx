@@ -30,6 +30,7 @@ export default function kakoAuth(){
         const fetchData = async () => {
             try {
               const code = new URL(window.location.href).searchParams.get('code');
+              console.log(code , 'code 확인')
               const setValues ={
                   code :  code
               }

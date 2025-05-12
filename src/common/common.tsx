@@ -10,8 +10,7 @@ if(localStorage.getItem('token')){
 }    
 
 const url = `${window.location.origin.replace(/:\d+$/, '')}:8020`;
-console.log(url  ,'url 확인중 이게문제인거같은데')
-export async function post (_url:String  , data:Object){
+export async function post (_url:String  , data:Object ={}){
     
     const jsonData:any = JSON.parse(JSON.stringify(data))
     const response  = await axios.post(
@@ -31,8 +30,20 @@ export async function post (_url:String  , data:Object){
         return response.data;
     }
     
-    
 }
+export async function get(url: string, params: any = {})  {
+  try {
+    const response = await axios.get(url, { 
+        params,
+        withCredentials: false 
+        }
+    );
+    return response.data;
+  } catch (err) {
+    console.error("GET 요청 실패:", err);
+    throw err;
+  }
+};
 
 export async function postBoardSearch (_url:String  , data:Object){
     console.log(localStorage.getItem('token') ,'token 확인');
@@ -109,6 +120,9 @@ export async function reissue (){
     });
  
 }
+
+
+
 
 
 

@@ -14,6 +14,7 @@ import KakaoAuth from '../user/kakaoAuth';
 import ChatGpt from '../chatGpt/chatGpt';
 import BoardUpdate from '../borad/boardUpdate';
 import ChatRoom from '../chat/chatRoom';
+import ChatMain from '../chat/chatMain';
 
 const mainComponent: React.FC = () => {
   const scrollRef0 = useRef<HTMLDivElement>(null);
@@ -51,7 +52,8 @@ const mainComponent: React.FC = () => {
                 <Route path='/board/boardDetail' element={<BoardDetail/>} />
                 <Route path='/board/boardUpdate' element={<BoardUpdate/>} />
                 <Route path='/chatGptApi' element={<ChatGpt/>} />
-                <Route path='/chat' element={<ChatRoom/>} />
+                <Route path='/chat' element={<ChatMain/>} />
+                <Route path="/chat/room/:roomId" element={<ChatRoom />} />
               </Routes>
               
           </Box>

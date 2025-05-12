@@ -125,6 +125,19 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
   }));
   const logOut  = () =>{
     localStorage.removeItem('user_email');
+    fetch('https://kapi.kakao.com/v1/user/unlink', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer J0NBMZ4i0YUGCOsaxbQcrSRwnZdmA-teOHXID_c-xySh4YJ7gibYDQAAAAQKDQgeAAABlsTwQooe0jm_MNo9Pw` // 사용자 액세스 토큰
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('카카오 로그아웃 성공', data);
+    })
+    .catch(error => {
+      console.error('카카오 로그아웃 실패', error);
+    });
     navigate('/'); // 또는 navigate('/') 로 홈으로 보내기
   }
 /**
@@ -176,6 +189,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
                   <Button href='' style={{color:'black'}} onClick={logOut}>
                   로그아웃
                   </Button>  
+
                   </Box>
                 : <Button href='/signin' style={{color:'black'}}>
                     로그인

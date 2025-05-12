@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { useParams } from "react-router-dom";
 
 interface ChatMessage {
   sender: string | null;
@@ -10,18 +11,21 @@ interface ChatMessage {
 }
 
 const ChatRoom = () => {
+  const { roomId } = useParams(); // ✅ URL에서 roomId 동적으로 추출
+  const numericRoomId = Number(roomId); // 서버는 숫자 ID 필요
+
   const [messages, setMessages] = useState<string[]>([]);
   const [message, setMessage] = useState<string>("");
   const clientRef = useRef<Client | null>(null);
-  const roomId = 123; // 예시 방 번호
-  const url = `${window.location.origin.replace(/:\d+$/, '')}:8020`
+  const url = `${window.location.origin.replace(/:\d+$/, "")}:8020`;
+
   // 1. 이전 메시지 불러오기
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
-    if (!token) return;
-    
+    if (!token || !numericRoomId) return;
+
     try {
-      const res = await fetch(url + `/api/chat/history/${roomId}`, {
+      const res = await fetch(`${url}/api/chat/history/${numericRoomId}/${localStorage.getItem('user_email')}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,30 +35,32 @@ const ChatRoom = () => {
         const data: ChatMessage[] = await res.json();
         setMessages(data.map((msg) => `${msg.sender_id}: ${msg.message}`));
       } else {
-        console.error("Failed to fetch previous messages.");
+        console.error("이전 메시지 불러오기 실패");
       }
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error("fetchMessages 오류:", error);
     }
   };
 
   useEffect(() => {
+    if (!numericRoomId) return;
+
     fetchMessages();
 
     const client = new Client({
-      webSocketFactory: () => new SockJS(url + "/ws-chat"),
+      webSocketFactory: () => new SockJS(`${url}/ws-chat`),
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log("Connected to STOMP");
+        console.log("📡 WebSocket 연결됨");
 
-        client.subscribe(`/topic/${roomId}`, (msg: IMessage) => {
+        client.subscribe(`/topic/${numericRoomId}`, (msg: IMessage) => {
           const received: ChatMessage = JSON.parse(msg.body);
           setMessages((prev) => [...prev, `${received.sender}: ${received.content}`]);
         });
       },
       onStompError: (frame) => {
-        console.error("STOMP error:", frame);
+        console.error("STOMP 에러:", frame);
       },
     });
 
@@ -64,25 +70,25 @@ const ChatRoom = () => {
     return () => {
       client.deactivate();
     };
-  }, [roomId]);
+  }, [numericRoomId]);
 
   // 2. 메시지 전송
   const sendMessage = () => {
     if (clientRef.current?.connected && message.trim()) {
       const payload: ChatMessage = {
-        sender: localStorage.getItem('user_email'), // 실제 사용자 ID로 교체
+        sender: localStorage.getItem("user_email"),
         content: message,
         message: null,
         sender_id: null,
       };
 
       clientRef.current.publish({
-        destination: `/app/chat.send/${roomId}`,
+        destination: `/app/chat.send/${numericRoomId}`,
         body: JSON.stringify(payload),
       });
 
-      // 👉 즉시 UI에 반영
-      setMessages((prev) => [...prev, `${payload.sender}: ${payload.content}`]);
+      // UI 즉시 반영
+      //setMessages((prev) => [...prev, `${payload.sender}: ${payload.content}`]);
       setMessage("");
     }
   };
@@ -90,6 +96,7 @@ const ChatRoom = () => {
   return (
     <div style={{ padding: 20 }}>
       <h2>Chat Room: {roomId}</h2>
+
       <div
         style={{
           border: "1px solid #ccc",
@@ -103,6 +110,7 @@ const ChatRoom = () => {
           <div key={i}>{msg}</div>
         ))}
       </div>
+
       <input
         value={message}
         onChange={(e) => setMessage(e.target.value)}
