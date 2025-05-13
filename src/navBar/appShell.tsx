@@ -22,6 +22,7 @@ import {post} from '../common/common'
 import { UseSelector, useSelector } from 'react-redux';
 import HomeIcon from '@mui/icons-material/Home';
 import { Button, ButtonGroup, Menu, MenuItem } from '@mui/material';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 200;
@@ -229,7 +230,7 @@ export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRe
                       justifyContent: 'center',
                     }}
                   >
-                    {index  === 0 ? <HomeIcon /> :  index === 1 ? <ContentPasteIcon /> : <InterpreterModeIcon />}
+                    {index  === 0 ? <HomeIcon /> :  index === 1 ? <ContentPasteIcon /> : index === 2  ? <InterpreterModeIcon /> : index === 3 ? <InterpreterModeIcon /> : index ===4 ?  <InterpreterModeIcon /> : <WbSunnyIcon />}
                   </ListItemIcon>
                   <ListItemText primary={value.menu_name} sx={{ opacity: 1 }} />
                 </ListItemButton>

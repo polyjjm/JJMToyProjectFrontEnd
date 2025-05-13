@@ -133,7 +133,7 @@ const ChatRoom = () => {
 
   return (
     <div style={{ padding: 20, backgroundColor: '#f0f2f5', minHeight: '130vh' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: 20 }}>💬 Chat Room #{roomId}</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: 20 }}>💬 Chat Room #{roomId == '13' ? '게스트룸' : roomId}</h2>
 
       <div
         ref={scrollContainerRef}
@@ -175,7 +175,7 @@ const ChatRoom = () => {
               >
                 {!isMe && (
                   <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: 4, color: '#555' }}>
-                    {msg.sender}
+                    {msg.sender =='3971393861' && roomId =='13' ? '관리자' : msg.sender}
                   </div>
                 )}
                 <div style={{ fontSize: '14px' }}>{msg.content}</div>

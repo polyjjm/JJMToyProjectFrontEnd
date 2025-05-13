@@ -121,10 +121,32 @@ export async function reissue (){
  
 }
 
+const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
+export const fetchWeatherByCity = async (city: string) => {
+  const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
+    params: {
+      q: city,
+      appid: process.env.REACT_APP_WEATHER_API_KEY,
+      units: 'metric',
+      lang: 'kr',
+    },
+  });
+  return response.data;
+};
 
-
-
+export const fetchForecastByCity = async (city: string) => {
+  const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast', {
+    params: {
+      q: city,
+      appid: process.env.REACT_APP_WEATHER_API_KEY,
+      units: 'metric',
+      lang: 'kr',
+    },
+  });
+  return response.data;
+};
 
 
 

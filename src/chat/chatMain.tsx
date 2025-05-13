@@ -44,7 +44,15 @@ const chatMain = () => {
   const clientRef = useRef<Client | null>(null);
   const currentUser = localStorage.getItem("user_email");
   const wsUrl = `${window.location.origin.replace(/:\\d+$/, "")}:8020`;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("user_email");
 
+    if (!token || !userEmail) {
+      alert("로그인이 필요합니다.");
+      navigate("/signin");
+    }
+  }, []);
   useEffect(() => {
     async function fetchRooms() {
       try {

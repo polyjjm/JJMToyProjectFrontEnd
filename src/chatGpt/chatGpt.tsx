@@ -60,8 +60,8 @@ export default function ChatGpt() {
           marginTop: 20,
           width: 1200,
           margin: "auto",
-          maxHeight: "600px",
-          minHeight: "600px",
+          maxHeight: "1000px",
+          minHeight: "1000px",
           padding: "1rem",
         }}
         sx={{ overflowY: "auto", overflowX: "hidden", color: "white" }}

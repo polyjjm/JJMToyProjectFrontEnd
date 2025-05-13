@@ -15,6 +15,8 @@ import ChatGpt from '../chatGpt/chatGpt';
 import BoardUpdate from '../borad/boardUpdate';
 import ChatRoom from '../chat/chatRoom';
 import ChatMain from '../chat/chatMain';
+import NicknameInputPage from '../chat/NicknameInputPage';
+import WeatherMain from '../weather/WeatherMain';
 
 const mainComponent: React.FC = () => {
   const scrollRef0 = useRef<HTMLDivElement>(null);
@@ -54,6 +56,8 @@ const mainComponent: React.FC = () => {
                 <Route path='/chatGptApi' element={<ChatGpt/>} />
                 <Route path='/chat' element={<ChatMain/>} />
                 <Route path="/chat/room/:roomId" element={<ChatRoom />} />
+                <Route path="/chat/NicknameInputPage" element={<NicknameInputPage />} />
+                <Route path="/weather" element={<WeatherMain />} />
               </Routes>
               
           </Box>
