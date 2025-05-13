@@ -8,18 +8,26 @@ interface ChatMessage {
   content: string;
   message: string | null;
   sender_id: string | null;
+  is_read?: boolean;
 }
 
 const ChatRoom = () => {
-  const { roomId } = useParams(); // ✅ URL에서 roomId 동적으로 추출
-  const numericRoomId = Number(roomId); // 서버는 숫자 ID 필요
+  const { roomId } = useParams();
+  const numericRoomId = Number(roomId);
 
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState<string>("");
   const clientRef = useRef<Client | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const url = `${window.location.origin.replace(/:\d+$/, "")}:8020`;
 
-  // 1. 이전 메시지 불러오기
+  useEffect(() => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   const fetchMessages = async () => {
     const token = localStorage.getItem("token");
     if (!token || !numericRoomId) return;
@@ -33,7 +41,12 @@ const ChatRoom = () => {
 
       if (res.ok) {
         const data: ChatMessage[] = await res.json();
-        setMessages(data.map((msg) => `${msg.sender_id}: ${msg.message}`));
+        const normalized = data.map((msg) => ({
+          ...msg,
+          content: msg.content || msg.message || "",
+          sender: msg.sender || msg.sender_id || null,
+        }));
+        setMessages(normalized);
       } else {
         console.error("이전 메시지 불러오기 실패");
       }
@@ -41,6 +54,13 @@ const ChatRoom = () => {
       console.error("fetchMessages 오류:", error);
     }
   };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     if (!numericRoomId) return;
@@ -56,7 +76,19 @@ const ChatRoom = () => {
 
         client.subscribe(`/topic/${numericRoomId}`, (msg: IMessage) => {
           const received: ChatMessage = JSON.parse(msg.body);
-          setMessages((prev) => [...prev, `${received.sender}: ${received.content}`]);
+          received.content = received.content || received.message || "";
+          received.sender = received.sender || received.sender_id || null;
+
+          const currentUser = localStorage.getItem('user_email');
+          const isMe = received.sender === currentUser;
+
+          if (!isMe && document.hidden && Notification.permission === "granted") {
+            new Notification("새 메시지 도착", {
+              body: received.content,
+            });
+          }
+
+          setMessages((prev) => [...prev, received]);
         });
       },
       onStompError: (frame) => {
@@ -72,7 +104,6 @@ const ChatRoom = () => {
     };
   }, [numericRoomId]);
 
-  // 2. 메시지 전송
   const sendMessage = () => {
     if (clientRef.current?.connected && message.trim()) {
       const payload: ChatMessage = {
@@ -87,37 +118,116 @@ const ChatRoom = () => {
         body: JSON.stringify(payload),
       });
 
-      // UI 즉시 반영
-      //setMessages((prev) => [...prev, `${payload.sender}: ${payload.content}`]);
       setMessage("");
     }
   };
 
+  const formatTime = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:${minutes} ${ampm}`;
+  };
+
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Chat Room: {roomId}</h2>
+    <div style={{ padding: 20, backgroundColor: '#f0f2f5', minHeight: '130vh' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: 20 }}>💬 Chat Room #{roomId}</h2>
 
       <div
+        ref={scrollContainerRef}
         style={{
-          border: "1px solid #ccc",
-          height: 300,
-          overflowY: "auto",
-          padding: 10,
-          marginBottom: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          height: '60vh',
+          overflowY: 'auto',
+          padding: 16,
+          marginBottom: 20,
+          backgroundColor: '#ffffff',
+          borderRadius: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}
       >
-        {messages.map((msg, i) => (
-          <div key={i}>{msg}</div>
-        ))}
+        {messages.map((msg, i) => {
+          const currentUser = localStorage.getItem('user_email');
+          const isMe = String(msg.sender) === currentUser;
+          return (
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                justifyContent: isMe ? 'flex-end' : 'flex-start',
+                width: '100%',
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: '70%',
+                  backgroundColor: isMe ? '#dcf8c6' : '#f1f0f0',
+                  color: '#333',
+                  borderRadius: '18px',
+                  padding: '10px 16px',
+                  wordBreak: 'break-word',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                }}
+              >
+                {!isMe && (
+                  <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: 4, color: '#555' }}>
+                    {msg.sender}
+                  </div>
+                )}
+                <div style={{ fontSize: '14px' }}>{msg.content}</div>
+                <div
+                  style={{
+                    fontSize: '10px',
+                    color: '#888',
+                    textAlign: 'right',
+                    marginTop: 6,
+                  }}
+                >
+                  {formatTime(new Date())} {isMe && (msg.is_read ? '✔' : '')}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
       </div>
 
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="메시지를 입력하세요"
-        style={{ width: "80%", marginRight: 10 }}
-      />
-      <button onClick={sendMessage}>Send</button>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <input
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="메시지를 입력하세요"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') sendMessage();
+          }}
+          style={{
+            flex: 1,
+            padding: 14,
+            borderRadius: 24,
+            border: '1px solid #ccc',
+            fontSize: 16,
+            outline: 'none',
+          }}
+        />
+        <button
+          onClick={sendMessage}
+          style={{
+            padding: '10px 20px',
+            borderRadius: 24,
+            backgroundColor: '#4caf50',
+            color: '#fff',
+            fontWeight: 'bold',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          보내기
+        </button>
+      </div>
     </div>
   );
 };
