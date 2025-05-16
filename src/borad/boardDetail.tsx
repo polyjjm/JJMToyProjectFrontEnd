@@ -1,150 +1,150 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Typography } from "@mui/material"
-import { Box } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  useTheme,
+  useMediaQuery,
+  Paper,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { post } from "../common/common";
-/*
-boardList Object 타입 
-*/
+
 interface boardType {
-    board_no : Number | undefined,
-    board_title : String | undefined,
-    board_writer : String | undefined,
-    board_userName : string | undefined,
-    board_content : string | TrustedHTML,
-    board_hit : String | 0,
-    board_like : String | 0,
-    board_hate : String | 0,
-    board_date : String | '',
-    board_hashTag :string | undefined
+  board_no: number;
+  board_title: string;
+  board_writer: string;
+  board_userName: string;
+  board_content: string | TrustedHTML;
+  board_hit: string;
+  board_like: string;
+  board_hate: string;
+  board_date: string;
+  board_hashTag: string;
 }
-export default function boardDetail() {
-    // 페이지 이동시 훅 데이터 훅 관련 전페이지 데이터 전달
-    const [updateStatus , setUpdateStatus] = useState(false);
-    const [deleteStatus , setDeleteStatus] = useState(false);
-    const location = useLocation();
-     const navigate = useNavigate();
-    const boardList = location.state.boardList;
-    const hashList = boardList.board_hashTag ? boardList.board_hashTag.split(',') : [];
-    useEffect(() =>{
-        const addBoadrList = post('/board/view' , {'board_no' : boardList.board_no} );
-        
-        if(boardList.board_userName !== localStorage.getItem('user_email')){
-            const btn1 = document.getElementById('update');
-            const btn2 = document.getElementById('delete');
-            if(btn1 && btn2){
-                btn2.style.display = 'none';
-                btn1.style.display = 'none';
-            }
 
-            
-        }        
-        
-    },[])
-    
+export default function BoardDetail() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const boardList: boardType = location.state.boardList;
+  const hashList = boardList.board_hashTag?.split(",") || [];
 
-    const deleteContent = async (status:string) =>{
-        if(status === 'YES'){
-            post('/board/delete' , {'board_no' : boardList.board_no} );
-            navigate(-1)
-        }else {
-            setDeleteStatus(false)
-        }
-    }
-    const updateContent = async (status:string) =>{
-        if(status === 'YES'){
-            navigate("/board/boardUpdate", { state: { boardList: boardList }});
-        }else {
-            setDeleteStatus(false)
-        }
-    }
-    const modalDelete = async() =>{ 
-        setDeleteStatus(true)
-    }
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
-    const modalUpdate = async() =>{ 
-        setUpdateStatus(true)
-    }
-    return (
-        <Box sx={{width: 1200  ,minHeight:'900px' }} >
-            <Box sx={{margin: 'auto', height:'350px'}}>
-                <Box style={{marginTop:'100px'}}>
-                
-                    <h1 dangerouslySetInnerHTML={{__html:boardList.board_title}} style={{fontSize:'40px' ,lineHeight:'12px',textAlign:'center'}}></h1>
-                    <Button variant="contained" onClick ={e => modalUpdate()} id='update'style={{float:'right',marginLeft:'10px'}}>수정</Button>
-                    <Button variant="contained" onClick={e => modalDelete()} id='delete' style={{float:'right'}}>삭제</Button>
-                    <Dialog
-                        open={deleteStatus}
-                        onClose={modalDelete}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">
-                        {" 정말로 삭제하시겠습니까?"}
-                        </DialogTitle>
-                        <DialogActions>
-                        <Button onClick={e => deleteContent('YES')}>삭제</Button>
-                        <Button onClick={e => deleteContent('NO')} autoFocus>
-                            취소
-                        </Button>
-                        </DialogActions>
-                    </Dialog>
-                    <Dialog
-                        open={updateStatus}
-                        onClose={modalDelete}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">
-                        {" 정말로 수정하시겠습니까?"}
-                        </DialogTitle>
-                        <DialogActions>
-                        <Button onClick={e => updateContent('YES')}>수정</Button>
-                        <Button onClick={e => updateContent('NO')} autoFocus>
-                            취소
-                        </Button>
-                        </DialogActions>
-                    </Dialog>
-                </Box>
-                <Box id='hashTagList' style={{margin:'auto',height:'100px'}}> 
-                        {
-                            hashList.length > 0 && hashList.map((hashTag:string , idx:number) =>{
-                                return (
-                                    <Box 
-                                    
-                                        style={{
-                                            fontSize:'20px',
-                                            height:'30px',
-                                            float :'left',
-                                            marginLeft:'10px',
-                                            backgroundColor:'#ED6C02',
-                                            borderRadius:'10px',
-                                            textAlign :'center',
-                                            minWidth:'100px'
-                                            }}
-                                            key={hashTag}>
-                                        <span style={{color:'#fff'}}>{hashTag}</span>
-                                    </Box>
-                                )
-                            })
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-                        }
-                  </Box>
-                  <Box style={{borderBottom:'4px solid gray',height:'30px'}}>
-                    <Box sx={{width:'300px' ,float:'left',marginLeft:'20px'}} >
-                        <span dangerouslySetInnerHTML={{__html:boardList.board_date.substr(0,10)}} />
-                    </Box>
-                    <Box sx={{width:'300px',float:'right' ,textAlign:'right',height:'30px',marginRight:'20px'}}>
-                        <span dangerouslySetInnerHTML={{__html:boardList.board_writer}} style={{textAlign :'left'}} />
-                        
-                    </Box>
-                  </Box>
+  useEffect(() => {
+    post("/board/view", { board_no: boardList.board_no });
+  }, []);
+
+  const canEdit = boardList.board_userName === localStorage.getItem("user_email");
+
+  const handleDelete = async (confirm: boolean) => {
+    if (confirm) {
+      await post("/board/delete", { board_no: boardList.board_no });
+      navigate(-1);
+    }
+    setDeleteOpen(false);
+  };
+
+  const handleUpdate = (confirm: boolean) => {
+    if (confirm) {
+      navigate("/board/boardUpdate", { state: { boardList } });
+    }
+    setUpdateOpen(false);
+  };
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 5 }, maxWidth: "1200px", mx: "auto" }}>
+      <Paper elevation={3} sx={{ p: { xs: 3, md: 5 }, borderRadius: 4, bgcolor: "#fefefe",minHeight:'900px' }}>
+        {/* Title & Buttons */}
+        <Box display="flex" flexDirection={isMobile ? "column" : "row"} justifyContent="space-between" alignItems={isMobile ? "flex-start" : "center"} mb={3}>
+          <Typography variant="h4" fontWeight="bold" sx={{ wordBreak: "break-word" }} dangerouslySetInnerHTML={{ __html: boardList.board_title }} />
+          {canEdit && (
+            <Box mt={isMobile ? 2 : 0} display="flex" gap={1}>
+                <Button
+                    onClick={() => setUpdateOpen(true)}
+                    sx={{
+                    px: 3,
+                    py: 1,
+                    borderRadius: 3,
+                    fontWeight: 600,
+                    backgroundColor: '#F5A623',
+                    color: '#fff',
+                    '&:hover': {
+                        backgroundColor: '#d48806',
+                    },
+                    }}
+                >
+                    ✏️ 수정
+                </Button>
+
+                <Button
+                    onClick={() => setDeleteOpen(true)}
+                    sx={{
+                    px: 3,
+                    py: 1,
+                    borderRadius: 3,
+                    fontWeight: 600,
+                    backgroundColor: '#FF4D4F',
+                    color: '#fff',
+                    '&:hover': {
+                        backgroundColor: '#d9363e',
+                    },
+                    }}
+                >
+                    🗑️ 삭제
+                </Button>
             </Box>
-            <Box sx={{margin: 'auto', width: 1200 }}>
-                <Box sx={{maxWidth: 1200 ,minHeight: 530 }}>
-                    <Typography id="transition-modal-description" sx={{ mt: 2, maxWidth: 1200 }} dangerouslySetInnerHTML={{__html:boardList.board_content}} />
-                </Box>
-            </Box>
+          )}
         </Box>
-    )
-};
+
+        {/* HashTags */}
+        <Box mb={3} display="flex" flexWrap="wrap" gap={1}>
+          {hashList.map((tag) => (
+            <Chip key={tag} label={`${tag}`} color="warning" sx={{ fontWeight: 600 }} />
+          ))}
+        </Box>
+
+        {/* Metadata */}
+        <Box display="flex" justifyContent="space-between" sx={{ mb: 2, borderBottom: '1px solid #ccc', pb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            작성일: {boardList.board_date?.substring(0, 10)}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            작성자: {boardList.board_writer}
+          </Typography>
+        </Box>
+
+        {/* Content */}
+        <Box>
+          <Typography variant="body1" sx={{ mt: 2, lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: boardList.board_content }} />
+        </Box>
+      </Paper>
+
+      {/* 삭제 확인 */}
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>정말로 삭제하시겠습니까?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleDelete(true)}>삭제</Button>
+          <Button onClick={() => handleDelete(false)}>취소</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 수정 확인 */}
+      <Dialog open={updateOpen} onClose={() => setUpdateOpen(false)}>
+        <DialogTitle>수정하시겠습니까?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => handleUpdate(true)}>수정</Button>
+          <Button onClick={() => handleUpdate(false)}>취소</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}

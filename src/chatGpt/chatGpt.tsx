@@ -1,23 +1,23 @@
 import React, { useState } from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github.css"; // 하이라이팅 스타일 적용
+import "highlight.js/styles/github.css";
 
 export default function ChatGpt() {
   const [input, setInput] = useState("");
-  const [responses, setResponses] = useState<string[]>([]); // responses를 배열로 관리
+  const [responses, setResponses] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const typeWriterEffect = (text: string, delay = 100) => {
+  const typeWriterEffect = (text: string, delay = 30) => {
     let i = 0;
     let temp = "";
     const interval = setInterval(() => {
       temp += text.charAt(i);
-      setResponses((prevResponses) => [
-        ...prevResponses.slice(0, prevResponses.length - 1), // 마지막 답변을 제거하고
-        temp, // 새로운 부분만 추가
+      setResponses((prev) => [
+        ...prev.slice(0, prev.length - 1),
+        temp,
       ]);
       i++;
       if (i >= text.length) clearInterval(interval);
@@ -25,10 +25,11 @@ export default function ChatGpt() {
   };
 
   const handleSend = async (e: any) => {
-    console.log(process.env.REACT_APP_OPENAI_API_KEY ,'주종민 값확인');
+    if(e.key === "Enter"){
+      setInput("");  
+    }
     if (e.key === "Enter" && input.trim() !== "") {
       setLoading(true);
-        //key 값은 안올라가나 
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -46,49 +47,76 @@ export default function ChatGpt() {
 
       const data = await res.json();
       const answer = data.choices?.[0]?.message?.content || "No response";
-      setResponses((prevResponses) => [...prevResponses, ""]); // 빈 문자열로 응답 시작
-      typeWriterEffect(answer, 30); // 💡 애니메이션 효과 시작
-      setInput("");
+      setResponses((prev) => [...prev, ""]);
+      typeWriterEffect(answer);
+      
       setLoading(false);
     }
+    
   };
 
   return (
-    <Box style={{ display: "flex", flexWrap: "wrap", backgroundColor: "#212121" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        backgroundColor: "#121212",
+        px: { xs: 2, sm: 4, md: 8 },
+        py: 4,
+      }}
+    >
       <Box
-        style={{
-          marginTop: 20,
-          width: 1200,
-          margin: "auto",
-          maxHeight: "1000px",
-          minHeight: "1000px",
-          padding: "1rem",
+        sx={{
+          flex: 1,
+          width: "100%",
+          maxWidth: "1000px",
+          mx: "auto",
+          overflowY: "auto",
+          color: "white",
+          mb: 4,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: "#1E1E1E",
+          boxShadow: 3,
         }}
-        sx={{ overflowY: "auto", overflowX: "hidden", color: "white" }}
       >
-        {/* 마크다운 렌더링 */}
         <ReactMarkdown
-          children={responses.join("\n\n")} // 응답들을 줄바꿈으로 구분
-          remarkPlugins={[remarkGfm]} // GFM (GitHub Flavored Markdown) 지원
-          rehypePlugins={[rehypeHighlight]} // 코드 하이라이팅 지원
+          children={responses.join("\n\n")}
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
         />
       </Box>
 
-      <Box style={{ maxWidth: 1100, margin: "auto" }}>
-        <h2 style={{ color: "white" }}>ChatGPT와 대화하기</h2>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "1000px",
+          mx: "auto",
+          p: 2,
+          backgroundColor: "#1E1E1E",
+          borderRadius: 2,
+          boxShadow: 3,
+        }}
+      >
+        <Typography variant="h6" color="white" gutterBottom>
+          ChatGPT와 대화하기
+        </Typography>
         <TextField
+          fullWidth
+          
           label="질문을 입력해주세요"
           variant="filled"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          rows={4}
-          style={{ width: "1100px", backgroundColor: "#303030" }}
+          onKeyUp={handleSend}
           sx={{
             input: { color: "white" },
             label: { color: "white" },
-            borderRadius: "10px",
+            textarea: { color: "white" },
+            backgroundColor: "#2C2C2C",
+            borderRadius: 1,
           }}
-          onKeyUp={handleSend}
         />
       </Box>
     </Box>

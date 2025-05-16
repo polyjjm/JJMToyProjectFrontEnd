@@ -15,6 +15,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useRef, useState } from "react";
 import BoardSkeleton from "./boardSkeleton";
+import AdFitBanner from "../common/AdFitBanner";
 
 const Img = styled('img')({
     marginTop:'10px',
@@ -102,7 +103,7 @@ export default function board(){
     isLoadingUseRef.current = isLoading;
 
     boardsUseRef.current = boards;
-
+    const observerRef = useRef(null);
     const wait = (timeToDelay:number , value :string) => new Promise((resolve , reject) =>{
             
         if(value === 'start'){
@@ -333,249 +334,157 @@ export default function board(){
     const modalClose = async() =>{ 
            // setModalStatus(false);     
     }
+    const handleCardClick = (item: boardType) => {
+        navigate("/board/boardDetail", { state: { boardList: item } });
+    };
+    const handleInsert = () => {
+        const token = localStorage.getItem('token');
+        navigate(token ? "/board/boardInsert" : "/signin");
+    };
+    const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = (e.target as HTMLInputElement).value.trim();
+      if (!value) return alert('검색어를 입력해주세요');
 
-    return (
-        <Box id='fontNoto' style={{display:'flex' , flexWrap : 'wrap' , backgroundColor: '#F8F9FA'}}>
-        
-            <Box sx={{
-                p: 2,
-                margin: 'auto',
-                marginTop:'20px',
-                marginRight:'25px',
-                width: 1200,
-                flexGrow: 2,
-                justifyContent: 'right',
-                display:'flex',               
-            }}>
-                <Select
-                    value={searchValues.searchType}
-                    style={{width:'110px' ,height:'30px', backgroundColor:'white' , fontSize : '12px',marginTop:'8px',marginRight:'10px',textAlign:'center'}}
-                    onChange={(e) => selectChange((e))}
-                >
-                    <MenuItem value='title'>제목</MenuItem>
-                    <MenuItem value='hashTag'>해시태그</MenuItem>
-                </Select>
+      setIsLoading(true);
+    const result = await postBoardSearch('/board/boardSearch', {
+        ...searchValues,
+        searchWord: value,
+        scrollIndex: 0
+    });
 
-                <Box style={{width:'900px'}}>
-                <TextField
-                id="standard-helperText"
-                defaultValue=""
-                helperText="제목 또는 태그를 입력해주세요"
-                variant="standard"
-                onKeyUp={(e) =>  search(e)}
-                style={{width:'900px',marginTop:'5px'}}
-                />
-                </Box>
-                <Box>
-                    <Button variant="contained" onClick={e => insertClick() } >게시글 등록</Button>
-                    <Modal
-                        open={modalStatus}
-                        onClose={modalClose}
-                        aria-labelledby="modal-title"
-                        aria-describedby="modal-description"
-                    >
-                        <Box sx={modalStyle}>
-                        <Typography id="modal-title" variant="h6" component="h2">
-                            로그인이 필요합니다 로그인하시겠습니까?
-                        </Typography>
-                        <Typography id="modal-description" sx={{ mt: 2 }}>
-                            
-                        </Typography>
-                        </Box>
-                    </Modal>
-                </Box>
-            </Box>
-            { boardsUseRef.current && boardsUseRef.current.length > 0 ? boardsUseRef.current.map((value,index) => (
-                
-                <Box key={value.board_no}>
-                    
-                    <Paper
-                    sx={{
-                        p: 2,
-                        margin: 'auto',
-                        width: 550,
-                        flexGrow: 1,
-                        backgroundColor: '#fff',
-                        marginBottom :'30px',
-                        marginLeft:'30px',
-                        float:'left'
-                    }}
-                    key={value.board_no}
-                    >
-                    <ButtonBase  sx={{width:'100%' , height:158}} onClick={e => clicked(value) }>    
-                            {
-                                value.board_imgList ?
-                                <Grid item xs={12} sm container>
-                                    <Grid item xs={4}>
-                                        <Img sx={{ width: 178, height: 148}} src={value.board_imgList.split(',')[0]} />
-                                    </Grid>
-                                    <Grid xs item sx={{ width:270 ,marginLeft:'10px'}}>
-                                        <Grid item >
-                                            <Typography id='fontNotoTitle' gutterBottom style={{marginLeft:'5px' ,fontSize:'32px' ,textAlign:'left' ,overflow:'hidden' , textOverflow:'ellipsis' , whiteSpace:'nowrap',marginTop:'10px'}}>
-                                                {value.board_title}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item>
-                                            <Typography
-                                                id='wordStyleImg'
-                                                gutterBottom
-                                                dangerouslySetInnerHTML={{__html:value.board_changeThumbnail}}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                    <Grid style={{display:'flex'}}>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'80px' ,textAlign:'left',marginLeft:'5px',paddingTop:'5px'}}>
-                                                    <span style={{verticalAlign: 'middle', fontSize:'15px'}}>{value.board_date.substr(0,10)}</span>
-                                                </Typography>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'330px' ,textAlign:'left',float:'left'}}>
-                                                        <span id='hashTagList' style={{margin:'auto',height:'40px',float:'left'}}> 
-                                                            {
-                                                                value.board_hashTags &&  value.board_hashTags.map((hashTag:string , idx:number) =>{
-                                                                    return (
-                                                                        idx < 3 ? 
-                                                                        <span 
-                                                                        
-                                                                        style={{
-                                                                            fontSize:'20px',
-                                                                            height:'25px',
-                                                                            float :'left',
-                                                                            marginLeft:'10px',
-                                                                            marginTop:'5px',
-                                                                            backgroundColor:'#ED6C02',
-                                                                            borderRadius:'10px',
-                                                                            textAlign :'center',
-                                                                            minWidth:'100px'
-                                                                        }}
-                                                                        key={hashTag}
-                                                                        >
-                                                                            <span style={{color:'#fff'}}>{hashTag}</span>
-                                                                        </span>
-                                                                        :
-                                                                        null
-                                                                    )
-                                                                })
-                                    
-                                                            }
-                                                        </span>
-                                                </Typography>
-                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'100px',textAlign:'right'}}>
-                                                    <RemoveRedEyeIcon style={{verticalAlign: 'middle', fontSize:'15px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_hit}</span>
-                                                    <ThumbUpIcon style={{verticalAlign: 'middle' ,fontSize:'15px' ,marginLeft:'10px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_like} </span>
-                                                </Typography>
-                                        </Grid>
-                                </Grid>
-
-                                    :  //분기점 
-
-
-                                <Grid item xs={12} sm container style={{height:'158px'}}>
-
-                                    <Grid item xs container direction="column"  style={{height:'148px',marginBottom:'-5px'}}>
-
-                                        <Grid item style={{marginTop:'-10px'}}>
-                                            <Grid>
-                                                <Typography id='fontNotoTitle' gutterBottom  style={{marginLeft:'5px' ,fontSize:'32px' ,textAlign:'left' }}>
-                                                    {value.board_title}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid>
-                                                <Typography
-                                                    id='wordStyle'
-                                                    gutterBottom
-                                                    dangerouslySetInnerHTML={{__html:value.board_changeThumbnail}}
-                                                >
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
-                                        
-
-                                    </Grid>
-                                    <Grid style={{display:'flex'}}>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'80px' ,textAlign:'left',marginLeft:'5px'}}>
-                                                    <span style={{verticalAlign: 'middle', fontSize:'15px'}}>{value.board_date.substr(0,10)}</span>
-                                                </Typography>
-                                                <Typography sx={{ cursor: 'pointer' }} variant="body2" style={{margin:'auto' ,width:'330px' ,textAlign:'left',float:'left',marginTop:'-5px'}}>
-                                                        <span id='hashTagList' style={{margin:'auto',height:'40px',float:'left'}}> 
-                                                            {
-                                                                value.board_hashTags &&  value.board_hashTags.map((hashTag:string , idx:number) =>{
-                                                                    return (
-                                                                        idx < 3 ? 
-                                                                        <span 
-                                                                        
-                                                                        style={{
-                                                                            fontSize:'20px',
-                                                                            height:'25px',
-                                                                            float :'left',
-                                                                            marginLeft:'10px',
-                                                                            marginTop:'5px',
-                                                                            backgroundColor:'#ED6C02',
-                                                                            borderRadius:'10px',
-                                                                            textAlign :'center',
-                                                                            minWidth:'100px'
-                                                                        }}
-                                                                        key={hashTag}
-                                                                        >
-                                                                            <span style={{color:'#fff'}}>{hashTag}</span>
-                                                                        </span>
-                                                                        :
-                                                                        null
-                                                                    )
-                                                                })
-                                    
-                                                            }
-                                                        </span>
-                                                </Typography>
-                                                <Typography variant="subtitle1" component="div" style={{margin:'auto',width:'100px',textAlign:'right'}}>
-                                                    <RemoveRedEyeIcon style={{verticalAlign: 'middle', fontSize:'15px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_hit}</span>
-                                                    <ThumbUpIcon style={{verticalAlign: 'middle' ,fontSize:'15px' ,marginLeft:'10px'}}/><span style={{verticalAlign: 'middle' ,fontSize:'15px'}}>  {value.board_like} </span>
-                                                </Typography>
-                                        </Grid>
-                                </Grid>     
-                            }                   
-                    </ButtonBase>
-                   </Paper>
-                        
-                </Box>
-                   
-            ))  :  <Box
-                    sx={{
-                        p: 2,
-                        margin: 'auto',
-                        maxWidth: 1200,
-                        flexGrow: 1,
-                        backgroundColor: '#F8F9FA',
-                        marginBottom :'10px',
-                        textAlign:'center',
-                    }}
-                  >
-                    <span>{isLoading ? '' : '게시물이존재하지않습니다' }</span>
-                  </Box>
-                  
+    const data = result.data.map((b: boardType) => ({
+            ...b,
+            board_hashTags: b.board_hashTag ? b.board_hashTag.split(',') : []
+        }));
+        setBoard(data);
+        setSearchValues(prev => ({ ...prev, searchWord: value, scrollIndex: result.scrollIndex }));
+        setPage(1);
+        setIsLoading(false);
         }
+    };
+    return (
+    <Box sx={{ px: { xs: 2, md: 4 }, py: 4, bgcolor: '#F5F7FA' }}>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <Grid xs={12} md={12} textAlign={{ xs: 'center', }}>
+                  <AdFitBanner  adUnit="DAN-1z5CmB0DZNK1zHzu" width={728} height={90}  />
+        </Grid>
+        <Grid item xs={12} sm={3} md={2}>
+          <Select
+            fullWidth
+            value={searchValues.searchType}
+            size="small"
+            onChange={(e) => setSearchValues({ ...searchValues, searchType: e.target.value })}
+          >
+            <MenuItem value='title'>제목</MenuItem>
+            <MenuItem value='hashTag'>해시태그</MenuItem>
+          </Select>
+        </Grid>
+        <Grid item xs={12} sm={6} md={7}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            size="small"
+            placeholder="제목 또는 태그를 입력해주세요"
+            onKeyUp={handleSearch}
+          />
+        </Grid>
+        <Grid item xs={12} sm={3} md={3} textAlign={{ xs: 'center', sm: 'right' }}>
+          <Button variant="contained" color="primary" onClick={handleInsert} sx={{ borderRadius: 2 }}>게시글 등록</Button>
+        </Grid>
+      </Grid>
 
-            {
-                          isLoading ? 
-                          <Box id='fontNoto' style={{flexWrap : 'wrap' , backgroundColor: '#F8F9FA'}}>
-                              
-                                  <BoardSkeleton />
-                                  <BoardSkeleton />
-                                  <BoardSkeleton />
-                                  <BoardSkeleton />
-                                  <BoardSkeleton />
-                                  <BoardSkeleton />
-                              
-                          </Box>
-                          : null
-             }
-             {
-                //isLoading  ? <LoadingScreen /> : null
-             }
-              <Box id='observer' style={{width:'1200px', height:'50px'}} />
-              
+      <Grid container spacing={3}>
+        {boards.length > 0 ? boards.map((item) => (
+          <Grid item xs={12} md={6} key={item.board_no}>
+            <Paper elevation={3} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, p: 2, borderRadius: 3, boxShadow: '0 3px 10px rgba(0,0,0,0.08)' ,minHeight: 200}}>
+              {item.board_imgList && (
+                <Box sx={{ width: 150, height: 150, overflow: 'hidden', flexShrink: 0, mr: { sm: 2 }, mb: { xs: 2, sm: 0 }, borderRadius: 2 }}>
+                  <img
+                    src={item.board_imgList.split(',')[0]}
+                    alt="썸네일"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }}
+                  />
+                </Box>
+              )}
+              <Box flex={1} display="flex" flexDirection="column" justifyContent="space-between">
+                <Box onClick={() => handleCardClick(item)} sx={{ cursor: 'pointer' }}>
+                  <Typography variant="h6" fontWeight={600} noWrap>{item.board_title}</Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      mt: 1,
+                      color: 'text.secondary'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: item.board_changeThumbnail }}
+                  />
+                </Box>
+
+                <Box mt={1} display="flex" gap={1} flexWrap="wrap">
+                  {item.board_hashTags?.slice(0, 3).map((tag) => (
+                    <Box
+                      key={tag}
+                      sx={{
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 12,
+                        backgroundColor: '#ED6C02',
+                        color: '#fff',
+                        fontSize: 12,
+                        fontWeight: 500
+                      }}
+                    >
+                      #{tag}
+                    </Box>
+                  ))}
+                </Box>
+
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
+                  <Typography variant="body2" color="text.secondary">{item.board_date?.substring(0, 10)}</Typography>
+                  <Box display="flex" gap={2} alignItems="center">
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <RemoveRedEyeIcon fontSize="small" />
+                      <Typography variant="body2" color="text.secondary">{item.board_hit}</Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={0.5}>
+                      <ThumbUpIcon fontSize="small" />
+                      <Typography variant="body2" color="text.secondary">{item.board_like}</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+        )) : (
+          <Grid item xs={12} textAlign="center">
+            <Typography>{isLoading ? '' : '게시물이 존재하지 않습니다'}</Typography>
+          </Grid>
+        )}
+      </Grid>
+
+      {isLoading && (
+        <Grid container spacing={2} mt={2}>
+          <BoardSkeleton />
+          <BoardSkeleton />
+          <BoardSkeleton />
+          <BoardSkeleton />
+        </Grid>
+      )}
+
+      <Box id='observer' style={{width:'100%', height:'300px'}} />
+
+      <Modal open={modalStatus} onClose={() => setModalStatus(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6">로그인이 필요합니다. 로그인하시겠습니까?</Typography>
         </Box>
-            
-        
-    )
+      </Modal>
+    </Box>
+  );
 }
 
 

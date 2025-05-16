@@ -1,283 +1,165 @@
-import { Box, Button, ButtonBase, Card, CardActionArea, CardContent, CardMedia, Chip, Fab, Link, Typography } from "@mui/material";
-import { styled } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
+import React, { useRef } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Chip,
+  Grid,
+  Link,
+  Paper,
+  Typography,
+} from "@mui/material";
+import {
+  BorderColor as BorderColorIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarTodayIcon,
+  AddLocation as AddLocationIcon,
+  Call as CallIcon,
+  AttachEmail as AttachEmailIcon,
+  Mode as ModeIcon,
+} from "@mui/icons-material";
+import backendImage1 from "../img/backend.2f24287c.svg";
+import backendImage2 from "../img/dev-ops.bba7bfe0.svg";
+import backendImage3 from "../img/frontend.cc822109.svg";
+import backendImage4 from "../img/language.112e0b13.svg";
 import './Home.css';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import PersonIcon from '@mui/icons-material/Person';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import AddLocationIcon from '@mui/icons-material/AddLocation';
-import CallIcon from '@mui/icons-material/Call';
-import AttachEmailIcon from '@mui/icons-material/AttachEmail';
-import ModeIcon from '@mui/icons-material/Mode';
-import backendImage1 from '../img/backend.2f24287c.svg';
-import backendImage2 from '../img/dev-ops.bba7bfe0.svg';
-import backendImage3 from '../img/frontend.cc822109.svg';
-import backendImage4 from '../img/language.112e0b13.svg';
-import React, { useRef, useState, useEffect,forwardRef, RefObject } from 'react';
+interface HomeProps {
+  scrollRef0: React.RefObject<HTMLDivElement>;
+  scrollRef1: React.RefObject<HTMLDivElement>;
+  scrollRef2: React.RefObject<HTMLDivElement>;
+  scrollRef3: React.RefObject<HTMLDivElement>;
+}
 
+export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, scrollRef3 }) => {
+  return (
+    <Box sx={{ fontFamily: "'Jua', serif", width: "100%" }}>
+      {/* Main Image */}
+      <Box id="main-image" display="flex" justifyContent="center" alignItems="center" sx={{ height: 500, textAlign: "center"}}>
+        <Box>
+          <Typography variant="h2"><span style={{color:'#fff'}}>-주종민-</span></Typography>
+          <Typography variant="h4"><span style={{color:'#fff'}}>웹개발 포트폴리오 사이트입니다</span></Typography>
+          <Typography mt={4}><span style={{color:'#fff'}}>안녕하세요<br />새로운 것을 탐구하는 풀스택 개발자<br />주종민입니다.</span></Typography>
+        </Box>
+      </Box>
 
-
-
-type HomeProps = {
-    scrollRef0: React.RefObject<HTMLDivElement>,
-    scrollRef1: React.RefObject<HTMLDivElement>,
-    scrollRef2: React.RefObject<HTMLDivElement>,
-    scrollRef3: React.RefObject<HTMLDivElement>
-
-};
-
-export const Home : React.FC<HomeProps>  = ({scrollRef0 ,scrollRef1, scrollRef2, scrollRef3}) => {    
-    const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-        ...theme.typography.body2,
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-    }));
-
-
-    const ref = useRef <null | HTMLDivElement[] > ([]);
-
-    return (
-    
-        <div  style={{display:'flex' ,width:'100%', flexWrap : 'wrap' ,fontFamily: "'Jua' , serif"}}>
-            <Box   id="main-image" display="flex" style={{ height:'500px' ,width:'100%' ,textAlign:'center' ,justifyContent: 'center'}}>
-                <div style={{marginTop:'60px' ,lineHeight:'40px'}}>
-                    <span  style={{color: '#fff',fontSize:'40px' }}>
-                    -주종민-
-                    <br/>
-                    웹개발 포트폴리오 사이트입니다 
-                    웹개발 포트폴리오 사이트입니다 
-                    </span>
-                    <br/>
-                    <div style={{marginTop:'50px'}}></div>
-                    <span >
-                        안녕하세요<br/>
-                        새로운것을 탐구하는 풀스택 개발자<br/>
-                        주종민입니다.
-                    </span>
-                    <br/>
-                </div>
-
-                
-            </Box>
-            <Box ref={scrollRef0} style={{width:'100%', height: '400px',justifyContent: 'center' ,marginTop:'100px'}}>
-                <Box  width='100%' style={{textAlign:'center' , margin:'auto' , marginBottom:'60px',}}>
-                <BorderColorIcon  style={{fontSize:'35px' , verticalAlign: 'middle'}}/><span  style={{ verticalAlign: 'middle' , fontSize:'40px', borderBottom:'2px solid gray' }}>ABOUT  ME</span>
-                </Box>
-                <Box width='100%' style={{margin:'auto'}} >
-                    <Box width='100%' display={'flex'} style={{margin:'auto', marginLeft:'100px'}}>
-                        
-                        <Box style={{width:'33%' ,height:'20xp'}} display={'flex'}>
-                            <PersonIcon style={{fontSize:'35px'}}/><span  style={{fontSize:'25px'}}>이름 : 주종민</span>
-                        </Box>
-                        <Box style={{width:'33%'}} display={'flex'}>
-                            <CalendarTodayIcon style={{fontSize:'35px' , height:'20xp'}}/><span  style={{fontSize:'25px'}}>생년월일 : 1996/03/05  </span>
-                        </Box>
-                        <Box style={{width:'33%'}} display={'flex'}>
-                            <AddLocationIcon style={{fontSize:'35px'}}/><span  style={{fontSize:'25px'}}>위치 : 경기도 고양시</span>
-                        </Box>
+      {/* About Me */}
+      <Box ref={scrollRef0} sx={{ py: 6, px: 2, overflow: 'hidden' }}>
+            <Typography variant="h4" textAlign="center" mb={4}>
+                <BorderColorIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
+                ABOUT ME
+            </Typography>
+            <Grid container spacing={4} justifyContent="center" maxWidth="lg" margin="0 auto">
+                {[
+                { icon: <PersonIcon />, label: '이름', value: '주종민' },
+                { icon: <CalendarTodayIcon />, label: '생년월일', value: '1996/03/05' },
+                { icon: <AddLocationIcon />, label: '위치', value: '경기도 고양시' },
+                { icon: <CallIcon />, label: '연락처', value: '010-6660-9328' },
+                { icon: <AttachEmailIcon />, label: '이메일', value: 'wnwhd788@gmail.com' },
+                { icon: <ModeIcon />, label: '학력', value: '인천 폴리텍' },
+                ].map((item, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Box display="flex" alignItems="center">
+                    {item.icon}
+                    <Typography ml={1} sx={{ wordBreak: 'keep-all' }}>
+                        <strong>{item.label}:</strong> {item.value}
+                    </Typography>
                     </Box>
-                    <Box style={{width:'100%' , display:'flex' , margin:'auto',marginTop:'70px' , marginLeft:'100px'}}>
-                        <Box style={{width:'33%'}} display={'flex'}>
-                            <CallIcon style={{fontSize:'35px'}}/><span  style={{fontSize:'25px'}}>연락처 : 010-6660-9328</span>
-                        </Box>
-                        <Box style={{width:'33%'}} display={'flex'}>
-                            <AttachEmailIcon style={{fontSize:'35px'}}/><span  style={{fontSize:'25px'}}>이메일 : wnwhd788@gmail.com</span>
-                        </Box>
-                        <Box style={{width:'33%'}} display={'flex'}>
-                            <ModeIcon style={{fontSize:'35px'}}/><span  style={{fontSize:'25px'}}>학력 : 인천 폴리텍</span>
-                        </Box>
-                    </Box>
-                </Box>
-            </Box>
-            <Box ref={scrollRef1} style={{width:'100%', height: '500px',justifyContent: 'center',backgroundColor:'#ffc107' , margin:'auto'}}>
-                <Box width='100%' style={{textAlign:'center' ,marginTop:'50px', marginBottom:'40px'}}>
-                    <BorderColorIcon style={{fontSize:'35px' , verticalAlign: 'middle'}}/><span  style={{ verticalAlign: 'middle' , fontSize:'40px', borderBottom:'2px solid gray'}}>SKILLS</span>
-                    
-                </Box>
-                <Box style={{width:'100%'}}>
-                    <Grid container style={{width:'100%',justifyContent: 'center'}}>
-                        <Grid item xs={9}>
-                            <Paper style={{height:'300px',fontSize : '20px' ,backgroundColor:'#FEF3D2' , borderRadius: '30px',paddingLeft:'40px'}}>
-                                
-                                <Box style={{marginBottom:'20px',paddingTop:'35px'}}>
-                                    <img src={backendImage3} style={{width:'40px', verticalAlign: 'middle'}} />
-                                    <span  style={{marginLeft:'20px' , marginRight:'20px'}}>FrontEnd</span>
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="JavaScript"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Vue"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="React"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="TypeScript"  />
-                                </Box>
-                                <Box style={{marginBottom:'20px'}}>
-                                    <img src={backendImage4} style={{width:'40px' ,verticalAlign: 'middle'}} />
-                                    <span  style={{marginLeft:'20px' , marginRight:'20px'}}>BackEnd</span>
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Java"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="SpringBoot"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Spring"  />
-                                </Box>
-                                <Box style={{marginBottom:'20px'}}>
-                                    <img src={backendImage2} style={{width:'40px', verticalAlign: 'middle'}} /> 
-                                    <span  style={{marginLeft:'20px' , marginRight:'20px'}}>DevOps</span>
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Aws"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Docker"  />
-                                </Box>
-                                <Box >
-                                    <img src={backendImage1} style={{width:'40px' , verticalAlign: 'middle'}} />
-                                    <span  style={{marginLeft:'20px' , marginRight:'20px'}}>DB</span>
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Oracle"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="MariaDB"  />
-                                    <Chip  style={{marginLeft:'10px', fontSize:'20px'}} label="Mysql"  />
-                                </Box>    
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                </Box>
-            </Box>
-            <Box style={{width:'100%', height: '1000px',justifyContent: 'center',backgroundColor:'#222222' , margin:'auto'}}>
-                <Box  width='100%' style={{textAlign:'center' ,marginTop:'50px', marginBottom:'40px'}}>
-                    <BorderColorIcon style={{fontSize:'35px' , verticalAlign: 'middle'}}/><span  style={{ verticalAlign: 'middle' , fontSize:'40px', borderBottom:'2px solid gray' ,color:'#ffffff'}}>CAREER</span>
-                </Box>
-                <Box>
-                <Paper ref={scrollRef2}
-                    sx={() => ({
-                        p: 4,
-                        margin: 'auto',
-                        maxWidth: 1000,
-                        flexGrow: 1,
-                        backgroundColor: '#fff',
-                        marginBottom:'50px',
-                        borderRadius: '30px'
-                    })}
-                    >
-                    <Grid container spacing={8}>
-                        <Grid item xs={12} sm container>
-                        <Grid item xs container direction="column" spacing={2}>
-                            <Grid item xs>
-                            <Typography  gutterBottom variant="subtitle1" component="div" style={{fontFamily: "'Jua' , serif"}}>
-                                사방넷 차세대
-                            </Typography>
-                            <Typography  variant="body2" gutterBottom style={{fontFamily: "'Jua' , serif"}}>
-                                사용언어 : Vue , SpringBoot
-                            </Typography>
-                            <Typography  variant="body2" sx={{ color: 'text.secondary' ,fontFamily: "'Jua' , serif"}}>
-                                업무 : 각종 인터넷쇼핑몰 , 옥션 , G마켓 , 오늘의집 , cafe24 등등 100개이상의 사이트의 정산을 하는과정에서 각 사이트의 API 요청을 java 를통해 가져오고 각 화면을 만드는 업무수행 , 각각의 쇼핑몰마다 화면구축
-                                       관리자 페이지에서 API 호출을통해 필요한 토큰값 등을 개발 , PHP 사이트를 Vue 로 컨버전 개발과정에있어서 php 구형 코드들이 많아서 자체적으로 흐름을 파악한후 Vue 로  재개발
+                </Grid>
+                ))}
+            </Grid>
+        </Box>
 
-                            </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item>
-                            <Typography  variant="subtitle1" component="div" style={{fontFamily: "'Jua' , serif"}}>
-                                2020-12-01 ~ 2022-06-01
-                            </Typography>
-                        </Grid>
-                        </Grid>
-                    </Grid>
-                    </Paper>
-                    <Paper
-                    sx={() => ({
-                        p: 4,
-                        margin: 'auto',
-                        maxWidth: 1000,
-                        flexGrow: 1,
-                        backgroundColor: '#fff',
-                        marginBottom:'50px',
-                        borderRadius: '30px'
-                    })}
-                    >
-                    <Grid container spacing={8}>
-                        <Grid item xs={12} sm container>
-                        <Grid item xs container direction="column" spacing={2}>
-                            <Grid item xs>
-                            <Typography  gutterBottom variant="subtitle1" component="div"  style={{fontFamily: "'Jua' , serif"}}>
-                                우체국 차세대
-                            </Typography>
-                            <Typography  variant="body2" gutterBottom style={{fontFamily: "'Jua' , serif"}}>
-                                사용기술 : 웹스퀘어 , Spring
-                            </Typography>
-                            <Typography  variant="body2" sx={{ color: 'text.secondary' ,fontFamily: "'Jua' , serif"}}>
-                            업무 : 보험쪽 업무를 담당했음 처음에는 스케쥴러로 관리해야하는 배치 프로그램을 개발 상세 내용은 보험비용을 정해진 시간에 맞춰 배치가 돌면 각 타 업무들의 거래내역을 종합해서 패치해주는 배치프로그램
-                                   돈관련 업무라 정확성을 요구했습니다 이후 보험 화면개발 
-
-                            </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item>
-                            <Typography  variant="subtitle1" component="div" style={{fontFamily: "'Jua' , serif"}}>
-                                2022-07-01 ~ 2022-10-01
-                            </Typography>
-                        </Grid>
-                        </Grid>
-                    </Grid>
-                    </Paper>
-                    <Paper
-                    sx={() => ({
-                        p: 4,
-                        margin: 'auto',
-                        maxWidth: 1000,
-                        flexGrow: 1,
-                        backgroundColor: '#fff',
-                        marginBottom:'50px',
-                        borderRadius: '30px'
-                    })}
-                    >
-                    <Grid container spacing={8}>
-                        <Grid item xs={12} sm container>
-                        <Grid item xs container direction="column" spacing={2}>
-                            <Grid item xs>
-                            <Typography  gutterBottom variant="subtitle1" component="div" style={{fontFamily: "'Jua' , serif"}}>
-                                LG유플러스 차세대
-                            </Typography>
-                            <Typography  variant="body2" gutterBottom style={{fontFamily: "'Jua' , serif"}}>
-                                사용기술 : 웹스퀘어 , SpringBoot
-                            </Typography>
-                            <Typography  variant="body2" sx={{ color: 'text.secondary',fontFamily: "'Jua' , serif" }}>
-                                업무 : 소호인터넷 화면개발 기존에 12000줄이넘는 페이지에서 흐름을 파악하고 개선과 웹스퀘어로 마이그레이션 하는 업무담당 추가업무와 타업무와의 DB 분리를 통해 타업무와 API 를 주고받아서 처리 
-                                        추가요구사항도 많았고 복잡도가 높아서 흐름파악이 중요했음 타부서와 소통이 중요했음 말그대로 소호인터넷에 관련해서 기업들을 상대로 인터넷가입하는 화면 
-                            </Typography>
-                            </Grid>
-                            
-                        </Grid>
-                        <Grid item>
-                            <Typography  variant="subtitle1" component="div" style={{fontFamily: "'Jua' , serif"}}>
-                                2022-11-01 ~ 2023-07-01
-                            </Typography>
-                        </Grid>
-                        </Grid>
-                    </Grid>
-                    </Paper>
+      {/* Skills */}
+      <Box ref={scrollRef1} sx={{ py: 6, bgcolor: "#ffc107" }}>
+        <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> SKILLS</Typography>
+        <Grid container justifyContent="center">
+          <Grid item xs={12} md={10}>
+            <Paper sx={{ p: 4, borderRadius: 4, bgcolor: "#FEF3D2" }}>
+              {[{
+                title: "FrontEnd",
+                icon: backendImage3,
+                skills: ["JavaScript", "Vue", "React", "TypeScript"]
+              }, {
+                title: "BackEnd",
+                icon: backendImage4,
+                skills: ["Java", "SpringBoot", "Spring"]
+              }, {
+                title: "DevOps",
+                icon: backendImage2,
+                skills: ["AWS", "Docker"]
+              }, {
+                title: "DB",
+                icon: backendImage1,
+                skills: ["Oracle", "MariaDB", "MySQL"]
+              }].map((section, idx) => (
+                <Box key={idx} mb={2}>
+                  <img src={section.icon} style={{ width: 40, verticalAlign: 'middle' }} alt="icon" />
+                  <Typography display="inline" mx={2} fontWeight={600}>{section.title}</Typography>
+                  {section.skills.map(skill => (
+                    <Chip key={skill} label={skill} sx={{ fontSize: '16px', mx: 0.5 }} />
+                  ))}
                 </Box>
-            </Box>
-            <Box ref={scrollRef3} style={{width:'100%', height: '400px',justifyContent: 'center',backgroundColor:'#F5F5F5' , margin:'auto'}}>
-                <Box width='100%' style={{textAlign:'center' , margin:'auto' , marginBottom:'60px',}}>
-                    <BorderColorIcon style={{fontSize:'35px' , verticalAlign: 'middle'}}/><span  style={{ verticalAlign: 'middle' , fontSize:'40px', borderBottom:'2px solid gray' }}>ARCHIVING</span>
-                </Box>
-                <Box style={{width:'100%', height: '300px',justifyContent: 'center',backgroundColor:'#F5F5F5' , margin:'auto'}}>
-                    
-                    <Card id='hoverImage' sx={{ maxWidth: 345 , margin:'auto' , borderRadius: '20px'}} >
-                    <Link href="https://github.com/polyjjm" target="_blank">
-                    <CardActionArea>
-                        <CardMedia
-                        component="img"
-                        height="140"
-                        image={process.env.PUBLIC_URL + '/gitHub.png'}
-                        alt="green iguana"
-                        />
-                        <CardContent>
-                        <Typography  gutterBottom variant="h5" component="div" >
-                            https://github.com/polyjjm
-                        </Typography>
-                        </CardContent>
-                    </CardActionArea>
-                    </Link>
-                    </Card>
-                </Box>
-            </Box>
-        </div>
+              ))}
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
 
-    )
+      {/* Career */}
+      <Box sx={{ py: 6, bgcolor: "#222", color: "#fff" }}>
+        <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> CAREER</Typography>
+        {[{
+          title: "사방넷 차세대",
+          tech: "Vue, SpringBoot",
+          duration: "2020-12-01 ~ 2022-06-01",
+          description: "각종 쇼핑몰 API를 연동하고 관리자 페이지를 개발. PHP 구 코드를 Vue로 컨버전."
+        }, {
+          title: "우체국 차세대",
+          tech: "웹스퀘어, Spring",
+          duration: "2022-07-01 ~ 2022-10-01",
+          description: "보험 배치 프로그램 및 화면 개발. 정확성과 정합성 중심의 업무 수행."
+        }, {
+          title: "LG유플러스 차세대",
+          tech: "웹스퀘어, SpringBoot",
+          duration: "2022-11-01 ~ 2023-07-01",
+          description: "소호 인터넷 관련 화면 개발 및 마이그레이션. 타부서와의 협업 중시."
+        }].map((job, idx) => (
+          <Paper key={idx} sx={{ p: 4, mx: "auto", my: 2, maxWidth: 1000, borderRadius: 4, bgcolor: "#fff", color: "#000" }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={9}>
+                <Typography variant="h6">{job.title}</Typography>
+                <Typography variant="body2">사용기술: {job.tech}</Typography>
+                <Typography variant="body2">업무내용: {job.description}</Typography>
+              </Grid>
+              <Grid item xs={12} md={3} textAlign={{ xs: "left", md: "right" }}>
+                <Typography variant="body2">{job.duration}</Typography>
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+      </Box>
 
+      {/* Archiving */}
+      <Box ref={scrollRef3} sx={{ py: 6, bgcolor: "#F5F5F5" }}>
+        <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> ARCHIVING</Typography>
+        <Grid container justifyContent="center">
+          <Grid item>
+            <Card sx={{ maxWidth: 345, borderRadius: 4 }}>
+              <Link href="https://github.com/polyjjm" target="_blank" underline="none">
+                <CardActionArea>
+                  <CardMedia component="img" height="140" image={process.env.PUBLIC_URL + '/gitHub.png'} alt="GitHub" />
+                  <CardContent>
+                    <Typography variant="h6">https://github.com/polyjjm</Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Link>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
 };
-

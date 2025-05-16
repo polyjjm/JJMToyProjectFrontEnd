@@ -1,242 +1,258 @@
-import React, { ForwardedRef, forwardRef, RefObject, useEffect, useRef, useState } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
+import React, { useEffect, useState } from 'react';
+import {
+  AppBar,
+  Box,
+  Button,
+  ButtonGroup,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { styled, useTheme, Theme, CSSObject} from '@mui/material/styles';
-import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import {post} from '../common/common'
-import { UseSelector, useSelector } from 'react-redux';
 import HomeIcon from '@mui/icons-material/Home';
-import { Button, ButtonGroup, Menu, MenuItem } from '@mui/material';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import { useLocation, useNavigate } from 'react-router-dom';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import { useNavigate } from 'react-router-dom';
+import { post } from '../common/common';
 
 const drawerWidth = 200;
 
-interface Props {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * Remove this when copying and pasting into your project.
-   */
-  window?: () => Window;
-}
-
 interface menu {
-  
-    depth :number ,
-    menu_name : string ,
-    menu_url : string,
-    parent_id : string,
-    sideYn : string,
-    sort_no : string,
+  depth: number;
+  menu_name: string;
+  menu_url: string;
+  parent_id: string;
+  sideYn: string;
+  sort_no: string;
 }
 
-interface category {
-  
-  aboutMe : Number
-}
 type navBarProps = {
-  scrollRef0: React.RefObject<HTMLDivElement>,
-  scrollRef1: React.RefObject<HTMLDivElement>,
-  scrollRef2: React.RefObject<HTMLDivElement>,
-  scrollRef3: React.RefObject<HTMLDivElement>
+  scrollRef0: React.RefObject<HTMLDivElement>;
+  scrollRef1: React.RefObject<HTMLDivElement>;
+  scrollRef2: React.RefObject<HTMLDivElement>;
+  scrollRef3: React.RefObject<HTMLDivElement>;
 };
 
-export const NavBar : React.FC<navBarProps> = ({scrollRef0 ,scrollRef1, scrollRef2, scrollRef3} ,props:Props ) => {
-  const navigate  = useNavigate() ;
-  const [menu , setMenu] =useState<Array<menu>>([]);
-  const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isClosing, setIsClosing] = React.useState(false);
-  const object : Object = {}
-
-
+export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRef2, scrollRef3 }) => {
+  const navigate = useNavigate();
+  const [menu, setMenu] = useState<Array<menu>>([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleClick = (ref: React.RefObject<HTMLDivElement>) => {
-    if(ref.current){
-      ref.current?.scrollIntoView({ behavior: "smooth", block: 'center' ,inline: "nearest" });
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  };
-
-
-  
-  let menuList:any;
-
-  const element = useRef<HTMLDivElement>(null);
-  const onMoveToElement = (props:any,ref:any) => {
-    element.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  useEffect(()=>{
-    console.log(localStorage.getItem('user_email') , '확인')
-    async function fetch() {
-        
-      menuList = await post('/menu/list' , {'currentPage' : 1});
-      if(menuList){
-        setMenu(menuList);
-      }
-      
-    };
-    fetch();
-  
-
-  }, [])
-
-
-
-  
-  
-  let menuName = [{name : '홈',domain : '/'} ,{ name : '게시판' , domain : 'board'} ,{name : 'md게시판' , domain:'/common/mdEditor'}];
-  const handleDrawerClose = () => {
-    setIsClosing(true);
-    setMobileOpen(false);
-  };
-
-  const handleDrawerTransitionEnd = () => {
-    setIsClosing(false);
   };
 
   const handleDrawerToggle = () => {
-    if (!isClosing) {
-      setMobileOpen(!mobileOpen);
-    }
+    setMobileOpen(!mobileOpen);
   };
-  
-  const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-  }));
-  const logOut  = () =>{
+
+  useEffect(() => {
+    async function fetchMenu() {
+      const menuList = await post('/menu/list', { currentPage: 1 });
+      if (menuList) {
+        setMenu(menuList);
+      }
+    }
+    fetchMenu();
+  }, []);
+
+  const logOut = () => {
     localStorage.removeItem('user_email');
+    localStorage.removeItem('token');
     fetch('https://kapi.kakao.com/v1/user/unlink', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer J0NBMZ4i0YUGCOsaxbQcrSRwnZdmA-teOHXID_c-xySh4YJ7gibYDQAAAAQKDQgeAAABlsTwQooe0jm_MNo9Pw` // 사용자 액세스 토큰
+        Authorization: `Bearer J0NBMZ4i0YUGCOsaxbQcrSRwnZdmA-teOHXID_c-xySh4YJ7gibYDQAAAAQKDQgeAAABlsTwQooe0jm_MNo9Pw`
       }
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log('카카오 로그아웃 성공', data);
-    })
-    .catch(error => {
-      console.error('카카오 로그아웃 실패', error);
-    });
-    navigate('/'); // 또는 navigate('/') 로 홈으로 보내기
-  }
-/**
-   추후 DB 에서 메뉴 가져와서 뿌려주는걸로 변경 
-*/
+      .then((res) => res.json())
+      .then((data) => console.log('카카오 로그아웃 성공', data))
+      .catch((err) => console.error('카카오 로그아웃 실패', err));
+    navigate('/');
+  };
 
-  // Remove this const when copying and pasting into your project.
-  const container = window !== undefined ? () => window().document.body : undefined;
+  const drawerContent = (
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#202020',
+        color: '#9B9B9B',
+        boxSizing: 'border-box',
+        overflowX: 'hidden'
+      }}
+    >
+      <Box sx={{ textAlign: 'center', mt: 2 }}>
+        <img
+          src={process.env.PUBLIC_URL + '/KakaoTalk_20250303_001054029.jpg'}
+          alt="profile"
+          style={{ width: '80px', borderRadius: '50%', marginTop: '15px' }}
+        />
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          wnwhd788@gmail.com
+        </Typography>
+      </Box>
+
+      <Divider sx={{ my: 2 }} />
+
+      <List>
+        {menu.map((value, index) => (
+          <ListItem key={value.menu_name} disablePadding>
+            <ListItemButton component="a" href={value.menu_url}>
+              <ListItemIcon sx={{ color: '#9B9B9B' }}>
+                {index === 0 ? (
+                  <HomeIcon />
+                ) : index === 1 ? (
+                  <ContentPasteIcon />
+                ) : index <= 4 ? (
+                  <InterpreterModeIcon />
+                ) : index <=5 ?  (
+                  <WbSunnyIcon />
+                ) : <PlaylistAddCheckIcon />}
+              </ListItemIcon>
+              <ListItemText primary={value.menu_name} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
 
   return (
-    <Box sx={{ display: 'flex' ,width:`${drawerWidth}px`}}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+
+      {/* AppBar */}
       <AppBar
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          backgroundColor: '#FFFFFF'
         }}
-        style={{backgroundColor:'#FFFFFF'}}
       >
-        <Toolbar>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ display: { sm: 'none' }, color: 'black' }}
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" width="100%" >
-            <div style={{ width:'100%' ,display:"flex"}}>
-              <Box width="60%" display="flex" href='/' component='a' style={{textDecoration: 'none', color: 'black' }}>
-              <h3  style={{color:'black'}}>JJM Portfolio</h3> 
-              </Box>
-              <Box marginTop="20px">
-                <ButtonGroup variant="text" aria-label="Basic button group" >
-                  <Button  onClick={() => handleClick(scrollRef0)} style={{color : 'black', fontWeight:'bolder'}}>About me</Button>
-                  <Button  onClick={() => handleClick(scrollRef1)} style={{color : 'black', fontWeight:'bolder'}}>Skills</Button>
-                  <Button  onClick={() => handleClick(scrollRef2)} style={{color : 'black', fontWeight:'bolder'}}>Archiving</Button>
-                  <Button  onClick={() => handleClick(scrollRef3)} style={{color : 'black', fontWeight:'bolder'}}>Career</Button>
-                </ButtonGroup>
-              </Box>
-              <Box marginTop="20px" marginLeft='30px'>
-                { 
-                  localStorage.getItem('user_email') ? 
-                  <Box>
-                    <a style={{color:'black',fontSize:'14px'}}>id : {localStorage.getItem('user_email')}</a>
-                  <Button href='' style={{color:'black'}} onClick={logOut}>
-                  로그아웃
-                  </Button>  
 
-                  </Box>
-                : <Button href='/signin' style={{color:'black'}}>
-                    로그인
-                  </Button> 
-                }
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href="/"
+              sx={{
+                textDecoration: 'none',
+                color: 'black',
+                fontWeight: 'bold',
+                mr: 2,
+                ml: '200px'
+              }}
+            >
+              JJM Portfolio
+            </Typography>
+
+            <Box
+              sx={{
+                ml: 'auto',
+                mr: '50px',
+                display: { xs: 'none', md: 'flex' }
+              }}
+            >
+              <ButtonGroup variant="text" sx={{ gap: 1 }}>
+                <Button onClick={() => handleClick(scrollRef0)} sx={{ color: 'black' }}>
+                  About me
+                </Button>
+                <Button onClick={() => handleClick(scrollRef1)} sx={{ color: 'black' }}>
+                  Skills
+                </Button>
+                <Button onClick={() => handleClick(scrollRef2)} sx={{ color: 'black' }}>
+                  Archiving
+                </Button>
+                <Button onClick={() => handleClick(scrollRef3)} sx={{ color: 'black' }}>
+                  Career
+                </Button>
+              </ButtonGroup>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              ml: 'auto',
+              mr: '200px',
+              display: { xs: 'none', md: 'flex' }
+            }}
+          >
+            {localStorage.getItem('user_email') ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" sx={{ color: 'black' }}>
+                  id: {localStorage.getItem('user_email')}
+                </Typography>
+                <Button onClick={logOut} sx={{ color: 'black' }}>
+                  로그아웃
+                </Button>
               </Box>
-            </div>
-            
-          </Typography>
+            ) : (
+              <Button href="/signin" sx={{ color: 'black' }}>
+                로그인
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
-      <Box sx={{display:'flex'}}>        
-        <Drawer variant="permanent">
-          <DrawerHeader style={{ backgroundColor: "#202020"}}>
-            <Box sx={{width:{sm : drawerWidth} , marginTop:'5px',textAlign:'center'}}>
-              <img src={process.env.PUBLIC_URL + '/KakaoTalk_20250303_001054029.jpg'} style={{width:'80px',borderRadius: '50px',marginTop:'15px'}}/>
-              <p style={{fontSize:'15px' ,color:'#9B9B9B'}}>wnwhd788@gmail.com</p>
-            </Box>
-          </DrawerHeader>
-          <Divider />
-          <List   style={{backgroundColor: "#202020" ,height:'100vh'}}>
-            {menu.map((value , index) => (
-              <ListItem key={value.menu_name} disablePadding sx={{ display: 'block' }}>
-                <ListItemButton 
-                  sx={{
-                    minHeight: 48,
-                    justifyContent:'initial',
-                    px: 2.5,
-                    color:'#9B9B9B'
-                  }}
-                  href={value.menu_url}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: 3,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {index  === 0 ? <HomeIcon /> :  index === 1 ? <ContentPasteIcon /> : index === 2  ? <InterpreterModeIcon /> : index === 3 ? <InterpreterModeIcon /> : index ===4 ?  <InterpreterModeIcon /> : <WbSunnyIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={value.menu_name} sx={{ opacity: 1 }} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+
+      {/* Drawer */}
+      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+        {/* 모바일 */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              height: '100vh',
+              overflowX: 'hidden'
+            }
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+
+        {/* 데스크탑 */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              height: '100vh',
+              overflowX: 'hidden'
+            }
+          }}
+          open
+        >
+          {drawerContent}
         </Drawer>
       </Box>
     </Box>
