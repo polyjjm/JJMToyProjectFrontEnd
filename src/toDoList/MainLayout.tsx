@@ -45,6 +45,7 @@ const MainLayout = () => {
   }, []);
 
   const handleAdd = async (text: string, category?: string, icon?: string) => {
+    const user_id = localStorage.getItem('user_email');
     const newTodo: TodoItem = {
       id: Date.now(),
       text,
@@ -53,6 +54,7 @@ const MainLayout = () => {
       category,
       icon,
       important: false,
+      user_id : user_id || ''
     };
     await addTodo(newTodo);
     setTodos((prev) => ({

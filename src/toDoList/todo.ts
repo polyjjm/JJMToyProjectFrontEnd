@@ -6,4 +6,5 @@ export interface TodoItem {
   category?: string; // ex) "GDSC", "할일", "JBBP"
   icon?: string;     // ex) "📚", "🔥", "🛠"
   important?: boolean
+  user_id : string
 }
