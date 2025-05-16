@@ -43,12 +43,14 @@ const TodoList: React.FC<Props> = ({ todos, onToggle, onDelete, onUpdate }) => {
   };
 
   const handleEdit = (id: number, text: string) => {
+    console.log('✏️ 수정 시작:', id, text);
     setEditingId(id);
     setEditText(text);
     handleMenuClose();
   };
 
   const handleEditSubmit = () => {
+    console.log('📝 수정 완료 시도:', editingId, editText);
     if (editingId !== null && editText.trim() && onUpdate) {
       onUpdate(editingId, editText.trim());
     }
@@ -94,7 +96,6 @@ const TodoList: React.FC<Props> = ({ todos, onToggle, onDelete, onUpdate }) => {
       {Object.entries(grouped).map(([category, items]) => {
         const allDone = items.every((item) => item.completed);
 
-        // 중요할 일을 우선으로 정렬
         const sortedItems = [...items].sort((a, b) => {
           if (a.important === b.important) return 0;
           return a.important ? -1 : 1;
@@ -105,23 +106,10 @@ const TodoList: React.FC<Props> = ({ todos, onToggle, onDelete, onUpdate }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Chip
                 size="small"
-                label={
-                  <span>
-                    {items[0].icon || '📌'} <strong>{category}</strong>
-                  </span>
-                }
-                sx={{
-                  backgroundColor: '#f1effc',
-                  color: '#6f5df4',
-                  fontWeight: 500,
-                  fontSize: '0.8rem',
-                }}
+                label={<span>{items[0].icon || '📌'} <strong>{category}</strong></span>}
+                sx={{ backgroundColor: '#f1effc', color: '#6f5df4', fontWeight: 500, fontSize: '0.8rem' }}
               />
-              <Button
-                size="small"
-                variant="text"
-                onClick={() => handleGroupToggle(items, !allDone)}
-              >
+              <Button size="small" variant="text" onClick={() => handleGroupToggle(items, !allDone)}>
                 {allDone ? '↩ 전체 해제' : '✔ 전체 완료'}
               </Button>
             </Box>
