@@ -15,7 +15,6 @@ import {
 import {
   BorderColor as BorderColorIcon,
   Person as PersonIcon,
-  CalendarToday as CalendarTodayIcon,
   AddLocation as AddLocationIcon,
   Call as CallIcon,
   AttachEmail as AttachEmailIcon,
@@ -25,6 +24,8 @@ import backendImage1 from "../img/backend.2f24287c.svg";
 import backendImage2 from "../img/dev-ops.bba7bfe0.svg";
 import backendImage3 from "../img/frontend.cc822109.svg";
 import backendImage4 from "../img/language.112e0b13.svg";
+import { PERSONAL_INFO } from "../common/personalInfo";
+import { COLORS } from "../theme";
 import './Home.css';
 interface HomeProps {
   scrollRef0: React.RefObject<HTMLDivElement>;
@@ -37,11 +38,11 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
   return (
     <Box sx={{ fontFamily: "'Jua', serif", width: "100%" }}>
       {/* Main Image */}
-      <Box id="main-image" display="flex" justifyContent="center" alignItems="center" sx={{ height: 500, textAlign: "center"}}>
+      <Box id="main-image" display="flex" justifyContent="center" alignItems="center" sx={{ height: { xs: 320, sm: 420, md: 500 }, textAlign: "center", px: 2 }}>
         <Box>
-          <Typography variant="h2"><span style={{color:'#fff'}}>-주종민-</span></Typography>
-          <Typography variant="h4"><span style={{color:'#fff'}}>웹개발 포트폴리오 사이트입니다</span></Typography>
-          <Typography mt={4}><span style={{color:'#fff'}}>안녕하세요<br />새로운 것을 탐구하는 풀스택 개발자<br />주종민입니다.</span></Typography>
+          <Typography sx={{ fontSize: { xs: '2rem', sm: '3rem', md: '3.75rem' } }}><span style={{color:'#fff'}}>-{PERSONAL_INFO.name}-</span></Typography>
+          <Typography sx={{ fontSize: { xs: '1.1rem', sm: '1.5rem', md: '2.125rem' } }}><span style={{color:'#fff'}}>웹개발 포트폴리오 사이트입니다</span></Typography>
+          <Typography mt={4} sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}><span style={{color:'#fff'}}>안녕하세요<br />새로운 것을 탐구하는 풀스택 개발자<br />{PERSONAL_INFO.name}입니다.</span></Typography>
         </Box>
       </Box>
 
@@ -53,12 +54,11 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
             </Typography>
             <Grid container spacing={4} justifyContent="center" maxWidth="lg" margin="0 auto">
                 {[
-                { icon: <PersonIcon />, label: '이름', value: '주종민' },
-                { icon: <CalendarTodayIcon />, label: '생년월일', value: '1996/03/05' },
-                { icon: <AddLocationIcon />, label: '위치', value: '경기도 고양시' },
-                { icon: <CallIcon />, label: '연락처', value: '010-6660-9328' },
-                { icon: <AttachEmailIcon />, label: '이메일', value: 'wnwhd788@gmail.com' },
-                { icon: <ModeIcon />, label: '학력', value: '인천 폴리텍' },
+                { icon: <PersonIcon />, label: '이름', value: PERSONAL_INFO.name },
+                { icon: <AddLocationIcon />, label: '위치', value: PERSONAL_INFO.location },
+                { icon: <CallIcon />, label: '연락처', value: PERSONAL_INFO.phone },
+                { icon: <AttachEmailIcon />, label: '이메일', value: PERSONAL_INFO.email },
+                { icon: <ModeIcon />, label: '학력', value: PERSONAL_INFO.education },
                 ].map((item, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                     <Box display="flex" alignItems="center">
@@ -73,11 +73,11 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
         </Box>
 
       {/* Skills */}
-      <Box ref={scrollRef1} sx={{ py: 6, bgcolor: "#ffc107" }}>
-        <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> SKILLS</Typography>
+      <Box ref={scrollRef1} sx={{ py: 6, px: 2, bgcolor: COLORS.teal }}>
+        <Typography variant="h4" textAlign="center" mb={4} sx={{ color: COLORS.ink }}><BorderColorIcon /> SKILLS</Typography>
         <Grid container justifyContent="center">
           <Grid item xs={12} md={10}>
-            <Paper sx={{ p: 4, borderRadius: 4, bgcolor: "#FEF3D2" }}>
+            <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: COLORS.surface }}>
               {[{
                 title: "FrontEnd",
                 icon: backendImage3,
@@ -95,11 +95,13 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
                 icon: backendImage1,
                 skills: ["Oracle", "MariaDB", "MySQL"]
               }].map((section, idx) => (
-                <Box key={idx} mb={2}>
-                  <img src={section.icon} style={{ width: 40, verticalAlign: 'middle' }} alt="icon" />
-                  <Typography display="inline" mx={2} fontWeight={600}>{section.title}</Typography>
+                <Box key={idx} mb={2} sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
+                    <img src={section.icon} style={{ width: 40 }} alt="icon" />
+                    <Typography fontWeight={600}>{section.title}</Typography>
+                  </Box>
                   {section.skills.map(skill => (
-                    <Chip key={skill} label={skill} sx={{ fontSize: '16px', mx: 0.5 }} />
+                    <Chip key={skill} label={skill} sx={{ fontSize: '15px', backgroundColor: COLORS.amber, color: COLORS.ink }} />
                   ))}
                 </Box>
               ))}
@@ -109,7 +111,7 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
       </Box>
 
       {/* Career */}
-      <Box sx={{ py: 6, bgcolor: "#222", color: "#fff" }}>
+      <Box sx={{ py: 6, px: 2, bgcolor: COLORS.ink, color: "#fff" }}>
         <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> CAREER</Typography>
         {[{
           title: "사방넷 차세대",
@@ -127,7 +129,7 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
           duration: "2022-11-01 ~ 2023-07-01",
           description: "소호 인터넷 관련 화면 개발 및 마이그레이션. 타부서와의 협업 중시."
         }].map((job, idx) => (
-          <Paper key={idx} sx={{ p: 4, mx: "auto", my: 2, maxWidth: 1000, borderRadius: 4, bgcolor: "#fff", color: "#000" }}>
+          <Paper key={idx} sx={{ p: { xs: 2, sm: 4 }, mx: "auto", my: 2, maxWidth: 1000, borderRadius: 4, bgcolor: COLORS.surface, color: COLORS.ink, borderLeft: `4px solid ${COLORS.coral}` }}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={9}>
                 <Typography variant="h6">{job.title}</Typography>
@@ -143,16 +145,16 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
       </Box>
 
       {/* Archiving */}
-      <Box ref={scrollRef3} sx={{ py: 6, bgcolor: "#F5F5F5" }}>
+      <Box ref={scrollRef3} sx={{ py: 6, px: 2, bgcolor: COLORS.bg }}>
         <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> ARCHIVING</Typography>
         <Grid container justifyContent="center">
           <Grid item>
             <Card sx={{ maxWidth: 345, borderRadius: 4 }}>
-              <Link href="https://github.com/polyjjm" target="_blank" underline="none">
+              <Link href={PERSONAL_INFO.githubUrl} target="_blank" underline="none">
                 <CardActionArea>
                   <CardMedia component="img" height="140" image={process.env.PUBLIC_URL + '/gitHub.png'} alt="GitHub" />
                   <CardContent>
-                    <Typography variant="h6">https://github.com/polyjjm</Typography>
+                    <Typography variant="h6">{PERSONAL_INFO.githubUrl}</Typography>
                   </CardContent>
                 </CardActionArea>
               </Link>

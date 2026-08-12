@@ -30,29 +30,38 @@ export default function ChatGpt() {
     }
     if (e.key === "Enter" && input.trim() !== "") {
       setLoading(true);
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: input },
-          ],
-        }),
-      });
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: "You are a helpful assistant." },
+              { role: "user", content: input },
+            ],
+          }),
+        });
 
-      const data = await res.json();
-      const answer = data.choices?.[0]?.message?.content || "No response";
-      setResponses((prev) => [...prev, ""]);
-      typeWriterEffect(answer);
-      
-      setLoading(false);
+        if (!res.ok) {
+          throw new Error(`OpenAI API error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const answer = data.choices?.[0]?.message?.content || "No response";
+        setResponses((prev) => [...prev, ""]);
+        typeWriterEffect(answer);
+      } catch (error) {
+        console.error("ChatGPT 요청 실패:", error);
+        setResponses((prev) => [...prev, "⚠️ 응답을 가져오지 못했습니다. 잠시 후 다시 시도해주세요."]);
+      } finally {
+        setLoading(false);
+      }
     }
-    
+
   };
 
   return (

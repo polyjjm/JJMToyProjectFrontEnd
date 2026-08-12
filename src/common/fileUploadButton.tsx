@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useState, ChangeEvent } from "react";
 import styled from "styled-components";
 
 
@@ -91,9 +91,9 @@ const  FileButton :React.FC<Props> = ({onChange}) => {
         </StyledFileInput>
       </label>
       
-      <Input type="file" id="file" onChange={(event) => {
+      <Input type="file" id="file" onChange={(event: ChangeEvent<HTMLInputElement>) => {
         onChange(event);
-      }} multiple ref={inputEl} /> 
+      }} multiple ref={inputEl} />
     </Container>
   );
 }

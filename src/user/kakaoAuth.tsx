@@ -1,62 +1,36 @@
-import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { post , postBoardSearch } from "../common/common";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { postBoardSearch } from "../common/common";
 import { useEffect } from "react";
 
 export default function kakoAuth(){
-    const navigate  = useNavigate() ;
-    
-    const backback = async () =>{
-        const code = new URL(window.location.href).searchParams.get('code');
-        const setValues ={
-            code :  code
-        }
-        const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
-        console.log(code);
 
-        // navigate(-2);
-        //const code = new URL(window.location.href).searchParams.get('code');
-        //_xCo54c6MapvtVmUeA-NDGfAh2LxCjqDk9KhCTS6kM4GBtnUUSqecwAAAAQKDSHZAAABlbQLeuuBPKUF0hG4dQ
-        console.log(code);
-        console.log("주종민 확인중");
-        console.log(returnResult)
-        localStorage.setItem("token" , returnResult.token)
-        localStorage.setItem("user_email" , returnResult.id)
-        navigate(-2)
-        
-    }
-     useEffect(() =>{
-    
+    useEffect(() =>{
         const fetchData = async () => {
-            try {
-              const code = new URL(window.location.href).searchParams.get('code');
-              console.log(code , 'code 확인')
-              const setValues ={
-                  code :  code
-              }
-              const returnResult = await postBoardSearch('/member/kakao/doLogin' ,setValues );
-
-              localStorage.setItem("token" , returnResult.token)
-              localStorage.setItem("user_email" , returnResult.id)
-              window.location.href='/';
-            } catch (error) {
-              console.error('Error fetching data:', error);
+            const code = new URL(window.location.href).searchParams.get('code');
+            const setValues = {
+                code,
+                // must match the redirect_uri signin.tsx sent to Kakao's /authorize step
+                redirectUri: `${window.location.origin}/login/kakao/oauth`,
             }
-          };
-        
+            const returnResult = await postBoardSearch('/member/kakao/doLogin', setValues);
+
+            if (!returnResult || !returnResult.token) {
+                alert('카카오 로그인에 실패했습니다. 다시 시도해주세요.');
+                window.location.href = '/signin';
+                return;
+            }
+
+            localStorage.setItem("token", returnResult.token)
+            localStorage.setItem("user_email", returnResult.id)
+            window.location.href = '/';
+        };
+
         fetchData();
-        
-        // navigate(-2);
-        //const code = new URL(window.location.href).searchParams.get('code');
-        //_xCo54c6MapvtVmUeA-NDGfAh2LxCjqDk9KhCTS6kM4GBtnUUSqecwAAAAQKDSHZAAABlbQLeuuBPKUF0hG4dQ
-            //수정 들어왔을때 최초 이미지 구분해줘야함 중간에 삭제 혹은 추가시 처리를 위하여
-                
     },[])
     return (
-        <Box  style={{display:'flex' , flexWrap : 'wrap'}}>
-            <Box onClick={(e) => backback()} style={{ margin:'auto' ,  marginTop:'150px',width:'600px' ,height:'500px' }}>
-                    
-            </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 2 }}>
+            <CircularProgress />
+            <Typography color="text.secondary">로그인 처리중입니다...</Typography>
         </Box>
     )
 }

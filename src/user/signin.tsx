@@ -1,46 +1,31 @@
-import { Box } from "@mui/material"
+import { Box, Paper, Typography } from "@mui/material"
+import { COLORS } from "../theme"
 
 export default function signin(){
 
-    //JavaScript 키	f7af60f982c2441421b46e146905f7b8
-    const kakaoLogin = (e:any) =>{
-        
-        
-        //window.location.href = kakaoURL
-        //const redirect_uri =  process.env.REACT_APP_KAKAO_REDIREACT_URI;
-        //const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:80/login/kakao/oauth`
-        //const redirect_uri =  `${window.location.origin.replace(/:\d+$/, '')}:3000/login/kakao/oauth`
-        
-        
-        
-        const redirect_uri =  `http://jjmdev.co.kr/login/kakao/oauth`
-        
-        //const client_id = process.env.REACT_APP_KAKAO_REST_API_KEY;
+    const kakaoLogin = () =>{
+        // Dynamic so this works from any registered origin (localhost during dev, the
+        // production domain when deployed) - the exact URI must be registered in the
+        // Kakao Developers console for this app, and is sent to the backend so its
+        // token-exchange call uses the same redirect_uri Kakao expects.
+        const redirect_uri = `${window.location.origin}/login/kakao/oauth`;
         const client_id = "663f118997d31c1c7c7b2dcce78417b2";
-        if(client_id){
-            encodeURI(client_id);
-        }
-        if(redirect_uri){
-            encodeURI(redirect_uri);
-        }
-        
 
-        window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code`
-                                
-
+        window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${encodeURIComponent(client_id)}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code`;
     }
     return (
-        <Box  style={{display:'flex' , flexWrap : 'wrap'}}>
-            <Box style={{margin:'auto' , marginTop:'150px',width:'600px' ,height:'500px'}}>
-                <Box style={{width:'600px' ,height:'150px',textAlign:'center',marginTop:'150px'}}>
-                    
-                        <h1> 로그인 </h1>
-                    
+        <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, py: { xs: 6, sm: 10 } }}>
+            <Paper elevation={3} sx={{ width: '100%', maxWidth: 400, p: { xs: 3, sm: 5 }, borderRadius: 4, textAlign: 'center' }}>
+                <Typography variant="h4" sx={{ mb: 4, color: COLORS.ink }}>로그인</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <img
+                        onClick={() => kakaoLogin()}
+                        alt="카카오 로그인"
+                        src={process.env.PUBLIC_URL + '/kakao_login.png'}
+                        style={{ width: '100%', maxWidth: 300, cursor: 'pointer' }}
+                    />
                 </Box>
-                <Box style={{margin :'auto',width:'600px',textAlign:'center'}}>
-                    <img onClick={e => kakaoLogin(e)}  src={process.env.PUBLIC_URL + '/kakao_login.png'}  />
-                </Box>
-            </Box>
+            </Paper>
         </Box>
     )
 }

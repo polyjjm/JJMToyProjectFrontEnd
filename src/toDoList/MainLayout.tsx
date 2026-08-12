@@ -6,6 +6,7 @@ import CalendarView from './CalendarView';
 import TodoInput from './TodoInput';
 import { fetchAllTodos, addTodo, updateTodo, deleteTodo } from './todoService';
 import { useNavigate } from 'react-router-dom';
+import { COLORS } from '../theme';
 
 const today = new Date();
 const midnightToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -56,7 +57,11 @@ const MainLayout = () => {
       important: false,
       user_id : user_id || ''
     };
-    await addTodo(newTodo);
+    const result = await addTodo(newTodo);
+    if (!result) {
+      alert('할 일 추가에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
     setTodos((prev) => ({
       ...prev,
       [currentKey]: [...(prev[currentKey] || []), newTodo],
@@ -66,7 +71,11 @@ const MainLayout = () => {
   const handleToggle = async (id: number) => {
     const todo = (todos[currentKey] || []).find((t) => t.id === id);
     if (!todo) return;
-    await updateTodo(id, { completed: !todo.completed });
+    const result = await updateTodo(id, { completed: !todo.completed });
+    if (!result) {
+      alert('변경에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
     setTodos((prev) => ({
       ...prev,
       [currentKey]: prev[currentKey].map((t) => t.id === id ? { ...t, completed: !t.completed } : t),
@@ -74,7 +83,11 @@ const MainLayout = () => {
   };
 
   const handleDelete = async (id: number) => {
-    await deleteTodo(id);
+    const result = await deleteTodo(id);
+    if (!result) {
+      alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
     setTodos((prev) => ({
       ...prev,
       [currentKey]: prev[currentKey].filter((t) => t.id !== id),
@@ -83,7 +96,11 @@ const MainLayout = () => {
 
   const handleUpdate = async (id: number, update: Partial<TodoItem> | string) => {
     const payload = typeof update === 'string' ? { text: update } : update;
-    await updateTodo(id, payload);
+    const result = await updateTodo(id, payload);
+    if (!result) {
+      alert('수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
     setTodos((prev) => ({
       ...prev,
       [currentKey]: prev[currentKey].map((t) => t.id === id ? { ...t, ...payload } : t),
@@ -106,17 +123,17 @@ const MainLayout = () => {
   const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9f8ff' }}>
-      <Box sx={{ flex: 1, p: 3, backgroundColor: '#ffffff', borderRight: '1px solid #e0e0e0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: '#6f5df4', mb: 1 }}>할일 목록</Typography>
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: '100vh', backgroundColor: COLORS.bg }}>
+      <Box sx={{ flex: { md: 1 }, p: 3, backgroundColor: COLORS.surface, borderRight: { md: '1px solid #e0e0e0' }, borderBottom: { xs: '1px solid #e0e0e0', md: 'none' }, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: COLORS.coral, mb: 1 }}>할일 목록</Typography>
         <Typography variant="body2" sx={{ mb: 2 }}>2025년 ✨</Typography>
         <CalendarView date={selectedDate} onChange={setSelectedDate} todos={todos} />
       </Box>
 
-      <Box sx={{ flex: 1, p: 4, position: 'relative' }}>
+      <Box sx={{ flex: { md: 1 }, p: { xs: 2, sm: 4 }, position: 'relative' }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 3 }}>📋 Feed</Typography>
 
-        <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2, backgroundColor: '#f0f0ff' }}>
+        <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2, backgroundColor: '#F0EFFA' }}>
           <Typography variant="subtitle1">📊 오늘의 통계</Typography>
           <Typography variant="body2">총 할 일: {total}</Typography>
           <Typography variant="body2">완료: {completed}</Typography>
@@ -124,8 +141,8 @@ const MainLayout = () => {
           <Typography variant="body2">완료율: {percentage}%</Typography>
         </Paper>
 
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-          <TextField fullWidth placeholder="검색어 입력" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+          <TextField sx={{ flex: '1 1 200px' }} placeholder="검색어 입력" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>카테고리</InputLabel>
             <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} label="카테고리">
@@ -138,7 +155,7 @@ const MainLayout = () => {
         <TodoInput onAdd={handleAdd} />
         <TodoList todos={filteredTodos} onToggle={handleToggle} onDelete={handleDelete} onUpdate={handleUpdate} />
 
-        <Box component="img" src="https://undraw.co/api/illustrations/undraw_to_do_list_re_9nt7.svg" alt="todo illust" sx={{ position: 'absolute', bottom: 16, right: 16, width: 140, opacity: 0.3 }} />
+        <Box component="img" src="https://undraw.co/api/illustrations/undraw_to_do_list_re_9nt7.svg" alt="todo illust" sx={{ display: { xs: 'none', md: 'block' }, position: 'absolute', bottom: 16, right: 16, width: 140, opacity: 0.3 }} />
       </Box>
     </Box>
   );

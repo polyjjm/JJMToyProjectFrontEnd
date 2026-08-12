@@ -5,16 +5,11 @@ import App from './main/mainComponent';
 import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { Provider } from 'react-redux';
-import { createTheme, ThemeProvider } from '@mui/material';
+import { ThemeProvider } from '@mui/material';
+import theme from './theme';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement); 
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
-
-const theme = createTheme({
-  typography: {
-    fontFamily: `'Jua', 'Roboto',  sans-serif`,
-  },
-});
 root.render(
   <Provider store={store}> {/* Redux store는 Provider로 감쌉니다 */}
     <ThemeProvider theme={theme}> {/* MUI 테마는 ThemeProvider로 감쌉니다 */}

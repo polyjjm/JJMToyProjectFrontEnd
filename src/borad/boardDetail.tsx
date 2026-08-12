@@ -30,8 +30,7 @@ interface boardType {
 export default function BoardDetail() {
   const location = useLocation();
   const navigate = useNavigate();
-  const boardList: boardType = location.state.boardList;
-  const hashList = boardList.board_hashTag?.split(",") || [];
+  const boardList: boardType | undefined = location.state?.boardList;
 
   const [updateOpen, setUpdateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -40,14 +39,33 @@ export default function BoardDetail() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    post("/board/view", { board_no: boardList.board_no });
-  }, []);
+    if (!boardList) {
+      navigate("/board", { replace: true });
+    }
+  }, [boardList, navigate]);
+
+  useEffect(() => {
+    if (boardList) {
+      post("/board/view", { board_no: boardList.board_no });
+    }
+  }, [boardList]);
+
+  if (!boardList) {
+    return null;
+  }
+
+  const hashList = boardList.board_hashTag?.split(",") || [];
 
   const canEdit = boardList.board_userName === localStorage.getItem("user_email");
 
   const handleDelete = async (confirm: boolean) => {
     if (confirm) {
-      await post("/board/delete", { board_no: boardList.board_no });
+      const result = await post("/board/delete", { board_no: boardList.board_no });
+      if (!result) {
+        alert("삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setDeleteOpen(false);
+        return;
+      }
       navigate(-1);
     }
     setDeleteOpen(false);

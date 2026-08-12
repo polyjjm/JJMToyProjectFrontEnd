@@ -1,15 +1,11 @@
-import { post, get } from '../common/common'; // 사용자 정의 axios 래퍼 사용
-
-
-
-const userId = localStorage.getItem('user_email');
+import { post } from '../common/common'; // 사용자 정의 axios 래퍼 사용
 
 // 📄 할 일 목록 조회 (날짜별)
 export const fetchTodos = async (date: string) => {
-  return await post('/todo/list', { 'date' : date  , 'user_id' : userId});
+  return await post('/todo/list', { 'date' : date  , 'user_id' : localStorage.getItem('user_email')});
 };
 export const fetchAllTodos = async () => {
-  return await post('/todo/list/all' , {'user_id' : userId}); // 백엔드에서 전체 할 일 리턴
+  return await post('/todo/list/all' , {'user_id' : localStorage.getItem('user_email')}); // 백엔드에서 전체 할 일 리턴
 };
 // ➕ 할 일 추가
 export const addTodo = async (todo: any) => {

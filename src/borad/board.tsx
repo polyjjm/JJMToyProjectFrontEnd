@@ -16,6 +16,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useRef, useState } from "react";
 import BoardSkeleton from "./boardSkeleton";
 import AdFitBanner from "../common/AdFitBanner";
+import { COLORS } from "../theme";
 
 const Img = styled('img')({
     marginTop:'10px',
@@ -168,9 +169,11 @@ export default function board(){
         
         await wait(1000 ,'start');
         try {
-          
+
           const addBoadrList = await postBoardSearch('/board/select' , {'scrollIndex' : page} );
-          console.log(addBoadrList,'보더확인')
+          if(!addBoadrList){
+            throw new Error('게시글 목록을 불러오지 못했습니다');
+          }
           for(let idx in addBoadrList.data){
             if(addBoadrList.data[idx].board_hashTag){
                 addBoadrList.data[idx].board_hashTags = addBoadrList.data[idx].board_hashTag.split(',');
@@ -186,8 +189,8 @@ export default function board(){
 
 
         } catch (error) {
-          console.log(error);
-          
+          console.error('게시글 목록 조회 실패:', error);
+
         }finally{
             await wait(1000 ,'stop') ;
         }
@@ -245,8 +248,11 @@ export default function board(){
 
                 //setPage(0);
 
-                const searchData = await postBoardSearch('/board/boardSearch' ,  searcgValueList);   
-                
+                const searchData = await postBoardSearch('/board/boardSearch' ,  searcgValueList);
+                if(!searchData){
+                    throw new Error('검색에 실패했습니다');
+                }
+
                 for(let idx in searchData.data){
                     if(searchData.data[idx].board_hashTag){
                         searchData.data[idx].board_hashTags = searchData.data[idx].board_hashTag.split(',');
@@ -267,12 +273,13 @@ export default function board(){
                 
                 
             }catch(error){
-                console.log(error);
+                console.error('게시글 검색 실패:', error);
+                alert('검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
             }finally{
                 await wait(1000 ,'stop') ;
             }
-            
-          
+
+
         }
     }
     const selectChange = (e:any) =>{
@@ -295,8 +302,11 @@ export default function board(){
 
             console.log('searchScrollFucntion' , searchValuesUseRef.current);
 
-            const searchData = await postBoardSearch('/board/boardSearch' ,  searchValuesUseRef.current); 
-            
+            const searchData = await postBoardSearch('/board/boardSearch' ,  searchValuesUseRef.current);
+            if(!searchData){
+                throw new Error('게시글 목록을 불러오지 못했습니다');
+            }
+
             for(let idx in searchData.data){
                 if(searchData.data[idx].board_hashTag){
                     searchData.data[idx].board_hashTags = searchData.data[idx].board_hashTag.split(',');
@@ -312,15 +322,14 @@ export default function board(){
             setPageParams((prev) =>[...prev,page]);
             
         }catch(error){
-            console.log(error);
-            
-            
+            console.error('게시글 목록 조회 실패:', error);
+
         }finally{
             await wait(1000 ,'stop') ;
         }
-        
+
     }
-    const insertClick = async() =>{ 
+    const insertClick = async() =>{
 
         const token = localStorage.getItem('token')
         if(token){
@@ -347,21 +356,30 @@ export default function board(){
       if (!value) return alert('검색어를 입력해주세요');
 
       setIsLoading(true);
-    const result = await postBoardSearch('/board/boardSearch', {
-        ...searchValues,
-        searchWord: value,
-        scrollIndex: 0
-    });
+      try {
+        const result = await postBoardSearch('/board/boardSearch', {
+            ...searchValues,
+            searchWord: value,
+            scrollIndex: 0
+        });
+        if (!result) {
+          throw new Error('검색에 실패했습니다');
+        }
 
-    const data = result.data.map((b: boardType) => ({
+        const data = result.data.map((b: boardType) => ({
             ...b,
             board_hashTags: b.board_hashTag ? b.board_hashTag.split(',') : []
         }));
         setBoard(data);
         setSearchValues(prev => ({ ...prev, searchWord: value, scrollIndex: result.scrollIndex }));
         setPage(1);
+      } catch (error) {
+        console.error('게시글 검색 실패:', error);
+        alert('검색 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } finally {
         setIsLoading(false);
-        }
+      }
+    }
     };
     return (
     <Box sx={{ px: { xs: 2, md: 4 }, py: 4, bgcolor: '#F5F7FA' }}>
@@ -433,7 +451,7 @@ export default function board(){
                         px: 1.5,
                         py: 0.5,
                         borderRadius: 12,
-                        backgroundColor: '#ED6C02',
+                        backgroundColor: COLORS.coral,
                         color: '#fff',
                         fontSize: 12,
                         fontWeight: 500

@@ -5,9 +5,8 @@ import MdEditor from "../common/mdEditor";
 import { styled } from '@mui/material/styles';
 import { postUpload } from "../common/common";
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
-import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { createBrowserHistory } from "history";
-import board from "./board";
+import { useLocation, useNavigate } from 'react-router-dom';
+import { COLORS } from "../theme";
 const Input = styled('input')({
   display: 'none',
   border:'2px solid red'
@@ -64,25 +63,29 @@ export default function boardUpdate(){
     });
     
     const location = useLocation();
+    const navigate = useNavigate();
      useEffect(() =>{
-
+        if(!location.state?.boardList){
+            navigate("/board", { replace: true });
+            return;
+        }
 
         let reg = new RegExp(/<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/, "g");
 
         const boardImg = location.state.boardList.board_content.match(reg);
-        
+
         let tt = []
         if(boardImg !== null){
-            for(let i = 0 ; i < boardImg.length;i++){                
+            for(let i = 0 ; i < boardImg.length;i++){
                 reg  = new RegExp(/src=".*?"/, "g");
                 let srcValue = location.state.boardList.board_content.match(reg)
                 if(srcValue){
                     boardList.boardImgLegacyList.push({idx: i , value : srcValue[0]});
                     tt.push({idx: i , value : srcValue[0]});
                 }
-                
+
             }
-            
+
         }
         setBoard({...location.state.boardList , boardImgLegacyList : tt});
         console.log(boardList , 'eeeee')
@@ -90,7 +93,7 @@ export default function boardUpdate(){
             sethashTagList(location.state.boardList.board_hashTags)
         }
         //수정 들어왔을때 최초 이미지 구분해줘야함 중간에 삭제 혹은 추가시 처리를 위하여
-            
+
     },[])
     const [uploadFiles , setFiles] = useState<FormData>(new FormData);
     let editorValue:any;
@@ -196,10 +199,15 @@ export default function boardUpdate(){
         }
         
         console.log(boardList , '마지막파일확인 레거시 확인용')
-        await postUpload('/board/update' , uploadFiles);
+        const result = await postUpload('/board/update' , uploadFiles);
+
+        if(!result){
+            alert('게시글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
 
         flagIndexSet(1);
-        
+
         window.location.href ='/board';
     }
 
@@ -290,10 +298,10 @@ export default function boardUpdate(){
     }
 
     return (
-        <Box sx={{margin: 'auto', maxWidth: 1200}}>
+        <Box sx={{ mx: 'auto', maxWidth: 1200, px: { xs: 2, sm: 3 } }}>
 
-            <Box sx={{marginTop:'50px',fontWeight : 'bold' ,  marginBottom:'50px', width:'100%' ,textAlign:'right' , fontSize :'30px' ,borderBottom : '2px solid #E4EDFC'}}>게시글 수정</Box>
-            <Box sx={{ margin:"auto",width:"100%" , paddingBottom:'20px'}}>
+            <Box sx={{mt: '50px', fontWeight: 'bold', mb: '50px', width:'100%', textAlign:'right', fontSize: { xs: '22px', sm: '30px' }, borderBottom : '2px solid #E4EDFC'}}>게시글 수정</Box>
+            <Box sx={{ width:"100%" , pb:'20px'}}>
                 <TextField
                 sx={{width:"100%"}}
                 variant="standard"
@@ -309,10 +317,10 @@ export default function boardUpdate(){
                 inputProps={{maxLength : 50}}
                 />
             </Box>
-            <Box style={{width:'1200px' , height:'300px',margin:'auto'}} >
-                <Box style={{float:'left'}}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                <Box sx={{ width: { xs: '100%', sm: 400 } }}>
                     <TextField
-                        sx={{width:400 , height:130}}
+                        sx={{ width: '100%' }}
                         label="-썸네일-"
                         onChange={changeThumbnail}
                         variant="standard"
@@ -326,9 +334,9 @@ export default function boardUpdate(){
 
                     />
                 </Box>
-                <Box style={{float:'left',width:'600px' , marginTop:'70px',marginLeft:'30px'}}>
+                <Box sx={{ width: { xs: '100%', sm: 500 } }}>
                     <TextField
-                    style={{width:'600px'}}
+                    sx={{ width: '100%' }}
                     id='hashTag'
                     value={hashInputText ? hashInputText : ''}
                     label="-해시 태그- / 공백 불가 , 최대 글자수 10"
@@ -340,27 +348,22 @@ export default function boardUpdate(){
                     onKeyDown={(e) => hashTagkeyDown(e)}
                     onKeyUp={(e) => activeButton(e)}
                     />
-                </Box>
-                <Box id='hashTagList' style={{width: '600px' , float:'right' ,height:'150px' ,marginRight:'190px' , overflow:'auto'}}>
-                    <Box>
+                    <Box id='hashTagList' sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2, maxHeight: 150, overflow: 'auto' }}>
                         {
                             hashTagList.length > 0 && hashTagList.map((hashTag ,idx) =>{
                             return (
-                            <Box 
-                                style={{
-                                    fontSize:'20px',
-                                    height:'30px',
-                                    float :'left',
-                                    marginLeft:'20px',
-                                    backgroundColor:'#ED6C02',
+                            <Box
+                                sx={{
+                                    fontSize:'16px',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    backgroundColor: COLORS.coral,
                                     borderRadius:'10px',
                                     textAlign :'center',
-                                    minWidth:'100px',
-                                    marginTop:'20px'
                                     }}
                                     key={idx}>
                                 <span style={{color:'#fff'}}>{hashTag}</span>
-                                <DisabledByDefaultIcon onClick={(e) =>deletHashTag(e ,idx)} style={{fontSize:'10px', marginLeft:'5px'}} />
+                                <DisabledByDefaultIcon onClick={(e) =>deletHashTag(e ,idx)} style={{fontSize:'10px', marginLeft:'5px', color: '#fff', cursor: 'pointer'}} />
                             </Box>)
                         })
 
@@ -372,7 +375,7 @@ export default function boardUpdate(){
                 <MdEditor value={boardList.board_content} onChange={eidtorValue} boardList={boardList} />
             </Box>
             <Box sx={{textAlign : 'center' , width:'100%' , marginTop:'50px'}}>
-                <Button variant="outlined" sx={{marginRight:'10px'}} onClick={() => {history.back()}}>취소</Button>
+                <Button variant="outlined" sx={{marginRight:'10px'}} onClick={() => {window.history.back()}}>취소</Button>
                 <Button variant="contained" onClick={subMit}>수정</Button>
             </Box>
         </Box>

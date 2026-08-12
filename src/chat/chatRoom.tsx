@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useParams } from "react-router-dom";
+import { apiOrigin } from "../common/common";
+import { COLORS } from "../theme";
 
 interface ChatMessage {
   sender: string | null;
@@ -20,7 +22,7 @@ const ChatRoom = () => {
   const clientRef = useRef<Client | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const url = `${window.location.origin.replace(/:\d+$/, "")}:8020`;
+  const url = apiOrigin;
 
   useEffect(() => {
     if (Notification.permission !== "granted") {
@@ -132,7 +134,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div style={{ padding: 20, backgroundColor: '#f0f2f5', minHeight: '130vh' }}>
+    <div style={{ padding: 20, backgroundColor: '#f0f2f5', minHeight: '100vh', boxSizing: 'border-box' }}>
       <h2 style={{ textAlign: 'center', marginBottom: 20 }}>💬 Chat Room #{roomId == '13' ? '게스트룸' : roomId}</h2>
 
       <div
@@ -218,7 +220,7 @@ const ChatRoom = () => {
           style={{
             padding: '10px 20px',
             borderRadius: 24,
-            backgroundColor: '#4caf50',
+            backgroundColor: COLORS.coral,
             color: '#fff',
             fontWeight: 'bold',
             border: 'none',

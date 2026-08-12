@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, Checkbox, Modal, Typography } from "@mui/material";
-import { post } from "../common/common";
+import { post, apiOrigin } from "../common/common";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
@@ -10,13 +10,14 @@ const modalStyle = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 900,
-  height: 600,
+  width: { xs: "92vw", sm: 600, md: 900 },
+  maxHeight: "85vh",
+  overflowY: "auto" as const,
   bgcolor: "background.paper",
   textAlign: "center",
   borderRadius: "12px",
   boxShadow: 24,
-  p: 4,
+  p: { xs: 2, sm: 4 },
 };
 
 interface userState {
@@ -43,7 +44,7 @@ const chatMain = () => {
   const navigate = useNavigate();
   const clientRef = useRef<Client | null>(null);
   const currentUser = localStorage.getItem("user_email");
-  const wsUrl = `${window.location.origin.replace(/:\\d+$/, "")}:8020`;
+  const wsUrl = apiOrigin;
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userEmail = localStorage.getItem("user_email");
@@ -110,6 +111,11 @@ const chatMain = () => {
   const modalOpen = async () => {
     setModalStatus(true);
     const userMap = await post("/member/userList", {});
+    if (!userMap) {
+      alert("유저 목록을 불러오지 못했습니다.");
+      setModalStatus(false);
+      return;
+    }
     setUserList(userMap);
     setCheckedList(userMap.map(() => false));
   };
@@ -146,42 +152,44 @@ const chatMain = () => {
   };
 
   return (
-    <Box style={{ display: "flex", flexWrap: "wrap", minHeight: "1200px" }}>
-      <Box style={{ textAlign: "center", width: "1200px" }}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", minHeight: "100vh", px: { xs: 2, sm: 4 }, py: 3 }}>
+      <Box sx={{ textAlign: "center", width: "100%" }}>
         <h2>채팅 메인</h2>
-        <Box style={{ width: "20%", float: "right" }}>
-          <Button variant="contained" color="success" onClick={modalOpen}>
+        <Box sx={{ textAlign: "right", mb: 2 }}>
+          <Button variant="contained" onClick={modalOpen}>
             채팅방 개설
           </Button>
         </Box>
 
         <Modal open={modalStatus} onClose={modalClose}>
           <Box sx={modalStyle}>
-            <Box style={{ width: "800px", maxHeight: "400px" }}>
+            <Box sx={{ width: "100%", maxHeight: 400 }}>
               <Typography variant="h6" sx={{ overflowY: "auto", height: 300 }}>
                 여기에 가입한 사람 목록
                 {userList.map((e, index) => (
                   <Box
                     key={index}
-                    style={{
+                    sx={{
                       display: "flex",
-                      height: "50px",
+                      flexWrap: "wrap",
+                      minHeight: "50px",
                       alignItems: "center",
                       borderBottom: "1px solid #ccc",
+                      textAlign: "left",
                     }}
                   >
-                    <Box style={{ width: "30%" }}>
+                    <Box sx={{ width: { xs: "100%", sm: "30%" } }}>
                       <Checkbox onClick={() => checkClick(index)} /> ID: {e.user_id}
                     </Box>
-                    <Box style={{ width: "20%" }}>NAME: {e.user_name}</Box>
-                    <Box style={{ width: "50%" }}>EMAIL: {e.user_email}</Box>
+                    <Box sx={{ width: { xs: "50%", sm: "20%" } }}>NAME: {e.user_name}</Box>
+                    <Box sx={{ width: { xs: "50%", sm: "50%" } }}>EMAIL: {e.user_email}</Box>
                   </Box>
                 ))}
               </Typography>
             </Box>
 
-            <Box style={{ width: "800px", marginTop: "150px", height: "50px" }}>
-              <Button variant="contained" color="success" onClick={chatOpend}>
+            <Box sx={{ width: "100%", mt: { xs: 4, sm: 8 }, height: "50px" }}>
+              <Button variant="contained" onClick={chatOpend}>
                 채팅 개설
               </Button>
             </Box>
@@ -189,7 +197,7 @@ const chatMain = () => {
         </Modal>
       </Box>
 
-      <Box style={{ width: "100%", padding: "20px" }}>
+      <Box sx={{ width: "100%", py: 2 }}>
         <Typography variant="h6">내 채팅방 목록</Typography>
         {!roomList.length ? (
           <Typography>채팅방이 없습니다.</Typography>
@@ -197,12 +205,13 @@ const chatMain = () => {
           roomList.map((room, index) => (
             <Box
               key={index}
-              style={{
+              sx={{
                 border: "1px solid #ccc",
                 borderRadius: "12px",
                 padding: "10px",
                 marginBottom: "10px",
                 cursor: "pointer",
+                textAlign: "left",
               }}
               onClick={() => {
                 setRoomList((prev) =>

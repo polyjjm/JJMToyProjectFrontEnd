@@ -40,14 +40,14 @@ const mainComponent: React.FC = () => {
             top: 100,
             width: 160,
             height: 600,
-            display: { xs: 'none', md: 'block' },
+            display: { xs: 'none', lg: 'block' },
             zIndex: 1000
           }}
         >
           <AdFitBanner adUnit="DAN-Ho9lSpfd2Z7FlSC5" width={160} height={600}  />
         </Box>
         {/* Main Content */}
-        <Box sx={{ flexGrow: 1, ml: `${drawerWidth}px`, pr: { md: '180px' } }}>
+        <Box sx={{ flexGrow: 1, width: '100%', ml: { xs: 0, md: `${drawerWidth}px` }, pr: { lg: '180px' } }}>
           <Toolbar />
           <Routes>
             <Route path="/login/kakao/oauth" element={<KakaoAuth />} />
@@ -76,7 +76,7 @@ const mainComponent: React.FC = () => {
             top: 100,
             width: 160,
             height: 600,
-            display: { xs: 'none', md: 'block' },
+            display: { xs: 'none', lg: 'block' },
             zIndex: 1000
           }}
         >

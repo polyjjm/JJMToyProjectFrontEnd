@@ -1,18 +1,18 @@
 #main-image {
-    background-size: 1500px 500px;
+    background-size: cover;
+    background-position: center;
     background-image : url('../img/backimages.jpg');
     position: relative;
 }
 
 #main-image::before {
     content: "";
-    opacity: 0.3;
     position: absolute;
     top : 0px;
     left: 0px;
     right: 0px;
     bottom: 0px;
-    background-color: #000;
+    background: linear-gradient(135deg, rgba(255,107,74,0.55), rgba(27,27,58,0.65));
 }
 
 #main-image span {

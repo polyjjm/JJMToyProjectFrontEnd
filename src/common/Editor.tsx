@@ -52,7 +52,9 @@ const Editor : React.FC<Props> = ({onChange}) => { // (1)
 
     return (
         <CKEditor
-            editor={ClassicEditor}
+            // @ckeditor/ckeditor5-build-classic and @ckeditor/ckeditor5-react ship slightly
+            // divergent internal Editor type versions; cast avoids a spurious type mismatch.
+            editor={ClassicEditor as any}
             config={{ // (4)
                 extraPlugins: [uploadPlugin]
             }}
