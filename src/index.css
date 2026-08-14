@@ -1,9 +1,9 @@
-/* Jua is preloaded via a <link> in public/index.html for faster first paint */
+/* Pretendard is preloaded via a <link> in public/index.html for faster first paint */
 @import url('https://fonts.googleapis.com/css2?family=Cute+Font&family=Gasoek+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif+KR:wght@200..900&display=swap');
 html ,body {
   margin: 0;
-  font-family: "Jua", serif;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,10 +37,6 @@ code {
   font-family: "Gasoek One", serif;
 }
 
-
-#jua {
-  font-family: "Jua", serif;
-}
 
 #noto {
   font-family: "Noto Serif KR", serif;

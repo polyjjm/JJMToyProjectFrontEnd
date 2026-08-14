@@ -220,7 +220,7 @@ const ChatRoom = () => {
           style={{
             padding: '10px 20px',
             borderRadius: 24,
-            backgroundColor: COLORS.coral,
+            backgroundColor: COLORS.accent,
             color: '#fff',
             fontWeight: 'bold',
             border: 'none',

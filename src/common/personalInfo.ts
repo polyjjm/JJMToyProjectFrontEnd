@@ -9,4 +9,7 @@ export const PERSONAL_INFO = {
     education: '인천 폴리텍',
     githubUrl: 'https://github.com/polyjjm',
     profileImage: process.env.PUBLIC_URL + '/KakaoTalk_20250303_001054029.jpg',
+    // Short line shown under the name on the sidebar profile mark (design-mockup.html's
+    // .sidebar-profile-text .role) - deliberately not the email, which stays header-only.
+    tagline: '풀스택 개발자',
 };

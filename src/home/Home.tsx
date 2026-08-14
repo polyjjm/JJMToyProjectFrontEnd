@@ -36,7 +36,7 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, scrollRef3 }) => {
   return (
-    <Box sx={{ fontFamily: "'Jua', serif", width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       {/* Main Image */}
       <Box id="main-image" display="flex" justifyContent="center" alignItems="center" sx={{ height: { xs: 320, sm: 420, md: 500 }, textAlign: "center", px: 2 }}>
         <Box>
@@ -73,8 +73,8 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
         </Box>
 
       {/* Skills */}
-      <Box ref={scrollRef1} sx={{ py: 6, px: 2, bgcolor: COLORS.teal }}>
-        <Typography variant="h4" textAlign="center" mb={4} sx={{ color: COLORS.ink }}><BorderColorIcon /> SKILLS</Typography>
+      <Box ref={scrollRef1} sx={{ py: 6, px: 2, bgcolor: COLORS.accentSoft }}>
+        <Typography variant="h4" textAlign="center" mb={4} sx={{ color: COLORS.textPrimary }}><BorderColorIcon /> SKILLS</Typography>
         <Grid container justifyContent="center">
           <Grid item xs={12} md={10}>
             <Paper sx={{ p: { xs: 2, sm: 4 }, borderRadius: 4, bgcolor: COLORS.surface }}>
@@ -101,7 +101,7 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
                     <Typography fontWeight={600}>{section.title}</Typography>
                   </Box>
                   {section.skills.map(skill => (
-                    <Chip key={skill} label={skill} sx={{ fontSize: '15px', backgroundColor: COLORS.amber, color: COLORS.ink }} />
+                    <Chip key={skill} label={skill} sx={{ fontSize: '15px', backgroundColor: COLORS.accentSoft, color: COLORS.accent }} />
                   ))}
                 </Box>
               ))}
@@ -111,7 +111,7 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
       </Box>
 
       {/* Career */}
-      <Box sx={{ py: 6, px: 2, bgcolor: COLORS.ink, color: "#fff" }}>
+      <Box sx={{ py: 6, px: 2, bgcolor: COLORS.accent, color: "#fff" }}>
         <Typography variant="h4" textAlign="center" mb={4}><BorderColorIcon /> CAREER</Typography>
         {[{
           title: "사방넷 차세대",
@@ -129,7 +129,7 @@ export const Home: React.FC<HomeProps> = ({ scrollRef0, scrollRef1, scrollRef2, 
           duration: "2022-11-01 ~ 2023-07-01",
           description: "소호 인터넷 관련 화면 개발 및 마이그레이션. 타부서와의 협업 중시."
         }].map((job, idx) => (
-          <Paper key={idx} sx={{ p: { xs: 2, sm: 4 }, mx: "auto", my: 2, maxWidth: 1000, borderRadius: 4, bgcolor: COLORS.surface, color: COLORS.ink, borderLeft: `4px solid ${COLORS.coral}` }}>
+          <Paper key={idx} sx={{ p: { xs: 2, sm: 4 }, mx: "auto", my: 2, maxWidth: 1000, borderRadius: 4, bgcolor: COLORS.surface, color: COLORS.textPrimary, borderLeft: `4px solid ${COLORS.accent}` }}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={9}>
                 <Typography variant="h6">{job.title}</Typography>

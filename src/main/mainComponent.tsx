@@ -21,7 +21,9 @@ import MainLayout from '../toDoList/MainLayout';
 import Footer from './footer';
 import AdFitBanner from '../common/AdFitBanner';
 
-const drawerWidth = 200;
+// Must match navBar/appShell.tsx's own drawerWidth constant - the sidebar and this content
+// offset are two separate components that both need to agree on the same pixel width.
+const drawerWidth = 240;
 
 const mainComponent: React.FC = () => {
   const scrollRef0 = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ const mainComponent: React.FC = () => {
         <Box
           sx={{
             position: 'fixed',
-            left:220,
+            left: drawerWidth + 20,
             top: 100,
             width: 160,
             height: 600,

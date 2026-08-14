@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
   CssBaseline,
@@ -21,12 +22,12 @@ import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { post } from '../common/common';
 import { PERSONAL_INFO } from '../common/personalInfo';
 import { COLORS } from '../theme';
 
-const drawerWidth = 200;
+const drawerWidth = 240;
 
 interface menu {
   depth: number;
@@ -51,8 +52,22 @@ const sectionLinks = [
   { label: 'Career', refKey: 'scrollRef3' as const },
 ];
 
+// Shared style for the small uppercase group headers above a nav list
+// (design-mockup.html's .sidebar-section-label, e.g. "Workspace").
+const sectionLabelSx = {
+  fontSize: 11,
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.06em',
+  color: '#6b6558',
+  px: 1.5,
+  pt: 2,
+  pb: 0.75,
+  fontWeight: 600,
+};
+
 export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRef2, scrollRef3 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [menu, setMenu] = useState<Array<menu>>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const refMap = { scrollRef0, scrollRef1, scrollRef2, scrollRef3 };
@@ -64,6 +79,12 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
     setMobileOpen(false);
   };
 
+  // Below the 900px breakpoint (MUI's default "md") the mockup shows the sidebar collapsed
+  // entirely, with a hamburger button in the topbar taking its place. The static mockup has
+  // no JS, so the actual open/close behavior lives here: `mobileOpen` toggles a MUI Drawer
+  // in "temporary" mode (an overlay that closes on outside-click/route change) below md, while
+  // a second "permanent" Drawer renders the same content pinned in place at md and above.
+  // Both drawers share `drawerContent` so the nav never drifts out of sync between the two.
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -91,77 +112,117 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
       sx={{
         width: '100%',
         minHeight: '100vh',
-        backgroundColor: COLORS.ink,
-        color: '#C9C9E0',
+        backgroundColor: COLORS.sidebarBg,
+        color: COLORS.sidebarText,
         boxSizing: 'border-box',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        py: 3,
+        px: 1.75,
       }}
     >
-      <Box sx={{ textAlign: 'center', mt: 2 }}>
-        <img
+      {/* Profile mark: circular avatar (the logged-in user's photo today, but this is the
+          slot a real profile-picture upload would plug into later) + name + a short tagline.
+          Per spec this is nav + profile only - no email, no logout here (both already live
+          in the topbar below, so showing them twice would just be noise). */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          gap: 1.5,
+          pb: 3,
+          mb: 1,
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <Avatar
           src={PERSONAL_INFO.profileImage}
           alt="profile"
-          style={{ width: '80px', borderRadius: '50%', marginTop: '15px', border: `2px solid ${COLORS.coral}` }}
+          sx={{ width: 96, height: 96, border: '1px solid rgba(255,255,255,0.35)' }}
         />
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          {PERSONAL_INFO.email}
-        </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ color: COLORS.sidebarTextActive, fontSize: 13.5, fontWeight: 700 }} noWrap>
+            {PERSONAL_INFO.name}
+          </Typography>
+          <Typography sx={{ color: COLORS.sidebarText, fontSize: 11.5, mt: '1px' }}>
+            {PERSONAL_INFO.tagline}
+          </Typography>
+        </Box>
       </Box>
 
-      <Divider sx={{ my: 2, borderColor: 'rgba(255,255,255,0.12)' }} />
-
-      {/* Home page section jump links - only meaningful when parked on "/", but harmless elsewhere */}
-      <List>
+      {/* Home page section jump links - only meaningful when parked on "/", but harmless
+          elsewhere since they just no-op if the ref isn't mounted. */}
+      <Typography sx={sectionLabelSx}>홈 바로가기</Typography>
+      <List sx={{ py: 0 }}>
         {sectionLinks.map((link) => (
           <ListItem key={link.label} disablePadding>
-            <ListItemButton onClick={() => handleClick(refMap[link.refKey])}>
-              <ListItemText primary={link.label} />
+            <ListItemButton
+              onClick={() => handleClick(refMap[link.refKey])}
+              sx={{
+                borderRadius: '8px',
+                color: COLORS.sidebarText,
+                fontSize: 13.5,
+                py: 1,
+                px: 1.5,
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.06)', color: COLORS.sidebarTextActive },
+              }}
+            >
+              <ListItemText primary={link.label} primaryTypographyProps={{ fontSize: 13.5, fontWeight: 500 }} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
 
-      <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.12)' }} />
+      <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.08)' }} />
 
-      <List>
-        {menu.map((value, index) => (
-          <ListItem key={value.menu_name} disablePadding>
-            <ListItemButton component="a" href={value.menu_url}>
-              <ListItemIcon sx={{ color: COLORS.teal }}>
-                {index === 0 ? (
-                  <HomeIcon />
-                ) : index === 1 ? (
-                  <ContentPasteIcon />
-                ) : index <= 4 ? (
-                  <InterpreterModeIcon />
-                ) : index <=5 ?  (
-                  <WbSunnyIcon />
-                ) : <PlaylistAddCheckIcon />}
-              </ListItemIcon>
-              <ListItemText primary={value.menu_name} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+      <List sx={{ py: 0 }}>
+        {menu.map((value, index) => {
+          // NOTE: icon-by-index is inherited fragile behavior, not introduced by this pass -
+          // it silently breaks if the backend-driven menu's order/count changes. Left as-is
+          // since fixing it (e.g. keying icons off menu_url or an icon field from the API)
+          // is out of scope for a styling/category pass.
+          const isActive = location.pathname === value.menu_url;
+          return (
+            <ListItem key={value.menu_name} disablePadding>
+              <ListItemButton
+                component="a"
+                href={value.menu_url}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  py: 1,
+                  px: 1.5,
+                  color: isActive ? COLORS.sidebarTextActive : COLORS.sidebarText,
+                  backgroundColor: isActive ? COLORS.accent : 'transparent',
+                  '&:hover': {
+                    backgroundColor: isActive ? COLORS.accent : 'rgba(255,255,255,0.06)',
+                    color: COLORS.sidebarTextActive,
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: 'inherit', opacity: isActive ? 1 : 0.85 }}>
+                  {index === 0 ? (
+                    <HomeIcon fontSize="small" />
+                  ) : index === 1 ? (
+                    <ContentPasteIcon fontSize="small" />
+                  ) : index <= 4 ? (
+                    <InterpreterModeIcon fontSize="small" />
+                  ) : index <= 5 ? (
+                    <WbSunnyIcon fontSize="small" />
+                  ) : (
+                    <PlaylistAddCheckIcon fontSize="small" />
+                  )}
+                </ListItemIcon>
+                <ListItemText
+                  primary={value.menu_name}
+                  primaryTypographyProps={{ fontSize: 13.5, fontWeight: isActive ? 700 : 500 }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
-
-      <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.12)' }} />
-
-      <Box sx={{ px: 2, py: 2 }}>
-        {localStorage.getItem('user_email') ? (
-          <Box>
-            <Typography variant="body2" sx={{ mb: 1, wordBreak: 'break-all' }}>
-              id: {localStorage.getItem('user_email')}
-            </Typography>
-            <Button fullWidth variant="outlined" onClick={logOut} sx={{ color: COLORS.amber, borderColor: COLORS.amber }}>
-              로그아웃
-            </Button>
-          </Box>
-        ) : (
-          <Button fullWidth variant="contained" href="/signin" sx={{ backgroundColor: COLORS.coral, color: COLORS.ink }}>
-            로그인
-          </Button>
-        )}
-      </Box>
     </Box>
   );
 
@@ -169,8 +230,8 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-      {/* AppBar - only carries the hamburger + title below md; the drawer is the single
-          source of navigation across breakpoints so there's no dead zone in between. */}
+      {/* AppBar - carries the hamburger (mobile only) + title, plus the login/logout + email
+          block, which intentionally stays here rather than in the sidebar (see drawerContent). */}
       <AppBar
         position="fixed"
         elevation={0}
@@ -178,8 +239,8 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
           width: { md: `calc(100% - ${drawerWidth}px)` },
           ml: { md: `${drawerWidth}px` },
           backgroundColor: COLORS.surface,
-          color: COLORS.ink,
-          borderBottom: `3px solid ${COLORS.coral}`,
+          color: COLORS.textPrimary,
+          borderBottom: `1px solid ${COLORS.border}`,
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -187,7 +248,7 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
             <IconButton
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ display: { xs: 'flex', md: 'none' }, color: COLORS.ink }}
+              sx={{ display: { xs: 'flex', md: 'none' }, color: COLORS.textPrimary }}
             >
               <MenuIcon />
             </IconButton>
@@ -198,7 +259,7 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
               href="/"
               sx={{
                 textDecoration: 'none',
-                color: COLORS.ink,
+                color: COLORS.textPrimary,
                 fontWeight: 'bold',
               }}
             >
@@ -208,22 +269,22 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
             {sectionLinks.map((link) => (
-              <Button key={link.label} onClick={() => handleClick(refMap[link.refKey])} sx={{ color: COLORS.ink }}>
+              <Button key={link.label} onClick={() => handleClick(refMap[link.refKey])} sx={{ color: COLORS.textPrimary }}>
                 {link.label}
               </Button>
             ))}
 
             {localStorage.getItem('user_email') ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body2" sx={{ color: COLORS.inkSoft }}>
+                <Typography variant="body2" sx={{ color: COLORS.textSecondary }}>
                   id: {localStorage.getItem('user_email')}
                 </Typography>
-                <Button onClick={logOut} sx={{ color: COLORS.coral, fontWeight: 700 }}>
+                <Button onClick={logOut} sx={{ color: COLORS.accent, fontWeight: 700 }}>
                   로그아웃
                 </Button>
               </Box>
             ) : (
-              <Button href="/signin" variant="contained" sx={{ backgroundColor: COLORS.coral, color: COLORS.ink }}>
+              <Button href="/signin" variant="contained" sx={{ backgroundColor: COLORS.accent, color: '#fff' }}>
                 로그인
               </Button>
             )}
@@ -233,7 +294,8 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
 
       {/* Drawer */}
       <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
-        {/* xs/sm: hamburger-triggered, covers the full nav+auth surface */}
+        {/* xs/sm (<900px): hamburger-triggered overlay drawer - matches the mockup's
+            collapsed/hidden sidebar state, since the mockup itself has no JS to open one. */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -251,7 +313,7 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
           {drawerContent}
         </Drawer>
 
-        {/* md+: pinned sidebar */}
+        {/* md+ (>=900px): pinned sidebar, always visible */}
         <Drawer
           variant="permanent"
           sx={{

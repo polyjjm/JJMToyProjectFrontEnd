@@ -16,7 +16,7 @@ export default function signin(){
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, py: { xs: 6, sm: 10 } }}>
             <Paper elevation={3} sx={{ width: '100%', maxWidth: 400, p: { xs: 3, sm: 5 }, borderRadius: 4, textAlign: 'center' }}>
-                <Typography variant="h4" sx={{ mb: 4, color: COLORS.ink }}>로그인</Typography>
+                <Typography variant="h4" sx={{ mb: 4, color: COLORS.textPrimary }}>로그인</Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     <img
                         onClick={() => kakaoLogin()}

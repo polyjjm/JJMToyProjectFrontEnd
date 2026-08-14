@@ -125,7 +125,7 @@ const MainLayout = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, minHeight: '100vh', backgroundColor: COLORS.bg }}>
       <Box sx={{ flex: { md: 1 }, p: 3, backgroundColor: COLORS.surface, borderRight: { md: '1px solid #e0e0e0' }, borderBottom: { xs: '1px solid #e0e0e0', md: 'none' }, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h5" sx={{ fontWeight: 600, color: COLORS.coral, mb: 1 }}>할일 목록</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 600, color: COLORS.accent, mb: 1 }}>할일 목록</Typography>
         <Typography variant="body2" sx={{ mb: 2 }}>2025년 ✨</Typography>
         <CalendarView date={selectedDate} onChange={setSelectedDate} todos={todos} />
       </Box>
