@@ -22,7 +22,7 @@ export default function boardUpdate(){
 
     const location = useLocation();
     const navigate = useNavigate();
-     useEffect(() =>{
+    useEffect(() =>{
         if(!location.state?.boardList){
             navigate("/board", { replace: true });
             return;
@@ -90,10 +90,7 @@ export default function boardUpdate(){
             return false;
         }
 
-        if(!boardList.board_changeThumbnail){
-            alert('내용을 썸네일은 필수입니다 !');
-            return false;
-        }
+        // 썸네일은 필수 항목이 아니다 - 있으면 쓰고 없으면 카드에서 fallback 처리된다.
         setBoard({...boardList , board_userName :  localStorage.getItem('user_email')})
         let reg = new RegExp(/<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/, "g");
 
@@ -149,27 +146,27 @@ export default function boardUpdate(){
             <Box sx={{mt: '50px', fontWeight: 'bold', mb: '50px', width:'100%', textAlign:'right', fontSize: { xs: '22px', sm: '30px' }, borderBottom: `2px solid ${COLORS.border}`}}>게시글 수정</Box>
             <Box sx={{ width:"100%" , pb:'20px'}}>
                 <TextField
-                sx={{width:"100%"}}
-                variant="standard"
-                label="제목"
-                id="title"
-                value={boardList.board_title}
-                placeholder="제목을 입력해주세요"
-                name="title"
-                onChange={changeTitle}
-                size="small"
-                focused
-                inputProps={{maxLength : 50}}
+                    sx={{width:"100%"}}
+                    variant="standard"
+                    label="제목"
+                    id="title"
+                    value={boardList.board_title}
+                    placeholder="제목을 입력해주세요"
+                    name="title"
+                    onChange={changeTitle}
+                    size="small"
+                    focused
+                    inputProps={{maxLength : 50}}
                 />
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
                 <Box sx={{ width: { xs: '100%', sm: 400 } }}>
                     <TextField
                         sx={{ width: '100%' }}
-                        label="-썸네일-"
+                        label="썸네일 (선택)"
                         onChange={changeThumbnail}
                         variant="standard"
-                        placeholder="추가하실 썸네일을 입력해주세요"
+                        placeholder="썸네일을 입력하지 않으면 이미지 없는 카드로 표시됩니다"
                         focused
                         multiline
                         rows={4}
