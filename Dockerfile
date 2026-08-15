@@ -1,12 +1,11 @@
-# 1단계: 빌드
 FROM node:20 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+ENV CI=false
 RUN npm run build
 
-# 2단계: Nginx로 서빙
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
 EXPOSE 80
