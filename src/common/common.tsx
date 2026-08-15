@@ -1,7 +1,9 @@
 import axios from "axios";
 
 // Backend is always served on :8020, regardless of what port the frontend is on.
-export const apiOrigin = `${window.location.origin.replace(/:\d+$/, '')}:8020`;
+export const apiOrigin = window.location.hostname === 'localhost'
+    ? 'http://localhost:8020'
+    : 'https://api.jjmlab.com';
 const url = apiOrigin;
 
 function getAuthHeader(): { Authorization: string } | undefined {
