@@ -1,8 +1,28 @@
 import axios from "axios";
+import { beginRequest, endRequest } from "./globalLoading";
+
+// Drives the top progress bar (see globalLoading.ts / TopProgressBar.tsx) for every request
+// made through the shared `axios` instance - post/get/postBoardSearch/postUpload here, plus any
+// other file that does `import axios from "axios"` and calls it directly (interceptors are
+// global to the module, not per-call-site), e.g. the weather fetches below.
+axios.interceptors.request.use((config) => {
+    beginRequest();
+    return config;
+}, (error) => {
+    endRequest();
+    return Promise.reject(error);
+});
+axios.interceptors.response.use((response) => {
+    endRequest();
+    return response;
+}, (error) => {
+    endRequest();
+    return Promise.reject(error);
+});
 
 // Backend is always served on :8020, regardless of what port the frontend is on.
 export const apiOrigin = window.location.hostname === 'localhost'
-    ? 'http://localhost:8020'
+    ? 'http://localhost:8081'
     : 'https://api.jjmlab.com';
 const url = apiOrigin;
 
@@ -109,15 +129,18 @@ export async function postUpload (_url:String  , data:Object){
 
 
 export async function reissue (){
-    const userId = localStorage.getItem("user_email");
+    const userId = localStorage.getItem("user_id");
     try {
         const response = await axios.post(url + '/auth/reissue', { user_id: userId });
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user_email", response.data.id);
+        // user_id (Kakao id) and user_email (real email) are separate keys - see kakaoAuth.tsx.
+        localStorage.setItem("user_id", response.data.id);
+        localStorage.setItem("user_email", response.data.email);
         window.location.reload();
     } catch (error) {
         alert("세션이 만료되었습니다. 다시 로그인해주세요.");
         localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
         localStorage.removeItem("user_email");
         window.location.href = window.location.origin + "/";
     }

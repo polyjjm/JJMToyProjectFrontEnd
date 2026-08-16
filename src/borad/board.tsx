@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import BoardSkeleton from "./boardSkeleton";
 import AdFitBanner from "../common/AdFitBanner";
 import { COLORS } from "../theme";
-import { BoardPost, CategoryCount, CategoryTab } from "./board.types";
+import { BoardPost, CategoryCount, CategoryTab, toThumbnailUrl } from "./board.types";
 
 type SearchScope = 'title' | 'titleContent' | 'content';
 
@@ -45,7 +45,10 @@ export default function board() {
     const navigate = useNavigate();
 
     const [boards, setBoards] = useState<BoardPost[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    // Starts true, not false: the initial-load effect below always fires loadBoards()
+    // immediately on mount, so defaulting to false let the "게시물이 존재하지 않습니다" empty
+    // state flash for one frame before the skeleton took over.
+    const [isLoading, setIsLoading] = useState(true);
     const [hasNextPage, setHasNextPage] = useState(true);
     const [scrollIndex, setScrollIndex] = useState(0);
 
@@ -117,7 +120,6 @@ export default function board() {
             const tree = await get(apiOrigin + '/board/categoryTree');
             if (tree) setCategoryTree(tree);
         })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Infinite scroll: registered once, always reads the *Ref mirrors above so it never sees
@@ -142,7 +144,6 @@ export default function board() {
                 observer.unobserve(observerTarget);
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ---- 3-tier category tab derivation ------------------------------------------------
@@ -385,7 +386,7 @@ export default function board() {
             )}
 
             {/* Board cards - velog-style card: image on top when present, quiet placeholder
-                when not (board_imgList may be empty; this is existing behavior, not a new
+                when not (board_imgList may be empty; this is existing behavior, not a newnpm
                 thumbnail pipeline). board_changeThumbnail is excerpt text, not an image - see
                 board.types.ts. */}
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px' }}>
@@ -410,11 +411,26 @@ export default function board() {
                             <Box sx={{
                                 width: '100%',
                                 aspectRatio: '16/9',
+                                position: 'relative',
+                                overflow: 'hidden',
                                 background: firstImage ? undefined : `linear-gradient(135deg, ${COLORS.accentSoft}, #E3DCD1)`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.accent,
                             }}>
                                 {firstImage ? (
-                                    <img src={firstImage} alt="썸네일" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <img
+                                        src={toThumbnailUrl(firstImage)}
+                                        alt="썸네일"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0, left: 0,
+                                            width: '100%', height: '100%',
+                                            objectFit: 'cover',
+                                        }}
+                                        onError={(e) => {
+                                            const img = e.currentTarget;
+                                            if (img.src !== firstImage) img.src = firstImage;
+                                        }}
+                                    />
                                 ) : (
                                     <ImageIcon sx={{ fontSize: 36, opacity: 0.35 }} />
                                 )}
@@ -431,13 +447,18 @@ export default function board() {
                                 <Typography sx={{ fontSize: 14.5, fontWeight: 700, letterSpacing: '-0.1px', lineHeight: 1.4 }} noWrap>
                                     {item.board_title}
                                 </Typography>
-                                <Typography
-                                    sx={{
-                                        fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.6,
-                                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                                    }}
-                                    dangerouslySetInnerHTML={{ __html: item.board_changeThumbnail }}
-                                />
+                                {/* board_changeThumbnail is only populated on older posts now -
+                                    the insert/update forms stopped collecting it since the card
+                                    image above already comes from board_imgList[0] instead. */}
+                                {item.board_changeThumbnail && (
+                                    <Typography
+                                        sx={{
+                                            fontSize: 12.5, color: COLORS.textSecondary, lineHeight: 1.6,
+                                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: item.board_changeThumbnail }}
+                                    />
+                                )}
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5, fontSize: 11.5, color: COLORS.textTertiary }}>
                                     <span>{item.board_date?.substring(0, 10)}</span>
                                     <Box sx={{ display: 'flex', gap: 1.25, alignItems: 'center' }}>
@@ -461,10 +482,9 @@ export default function board() {
 
             {isLoading && (
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '14px', mt: 2 }}>
-                    <BoardSkeleton />
-                    <BoardSkeleton />
-                    <BoardSkeleton />
-                    <BoardSkeleton />
+                    {/* One skeleton per post in a batch (now 8, matching the backend's LIMIT) so
+                        the placeholder grid fills the same number of rows the real results will. */}
+                    {Array.from({ length: 8 }).map((_, i) => <BoardSkeleton key={i} />)}
                 </Box>
             )}
 

@@ -21,7 +21,13 @@ export default function kakoAuth(){
             }
 
             localStorage.setItem("token", returnResult.token)
-            localStorage.setItem("user_email", returnResult.id)
+            // Two distinct identities, two distinct keys: user_id is the Kakao numeric id
+            // (used by chat/todo/token-reissue), user_email is the real email (used by board
+            // post/comment ownership checks). These used to collapse onto one 'user_email' key
+            // holding the id, which made every real-email comparison silently fail - see
+            // boardDetail.tsx's canEdit/comment-ownership checks.
+            localStorage.setItem("user_id", returnResult.id)
+            localStorage.setItem("user_email", returnResult.email)
             window.location.href = '/';
         };
 

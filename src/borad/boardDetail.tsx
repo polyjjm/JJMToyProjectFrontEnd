@@ -2,17 +2,17 @@ import {
   Box,
   Typography,
   Button,
-  Dialog,
-  DialogActions,
-  DialogTitle,
   useTheme,
   useMediaQuery,
   Paper,
   TextField,
+  Skeleton,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { post, get, apiOrigin } from "../common/common";
+import LoadingButton from "../common/LoadingButton";
+import ConfirmDialog from "../common/ConfirmDialog";
 import { COLORS } from "../theme";
 import { BoardPost } from "./board.types";
 
@@ -31,9 +31,12 @@ export default function BoardDetail() {
 
   const [updateOpen, setUpdateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [comments, setComments] = useState<CommentItem[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
   const currentUser = localStorage.getItem('user_email');
 
   const theme = useTheme();
@@ -53,13 +56,17 @@ export default function BoardDetail() {
 
   const loadComments = async () => {
     if (!boardList) return;
-    const result = await get(apiOrigin + '/board/comment/list', { board_no: boardList.board_no });
-    if (result) setComments(result);
+    setCommentsLoading(true);
+    try {
+      const result = await get(apiOrigin + '/board/comment/list', { board_no: boardList.board_no });
+      if (result) setComments(result);
+    } finally {
+      setCommentsLoading(false);
+    }
   };
 
   useEffect(() => {
     loadComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardList?.board_no]);
 
   if (!boardList) {
@@ -76,13 +83,16 @@ export default function BoardDetail() {
 
   const handleDelete = async (confirm: boolean) => {
     if (confirm) {
+      setDeleting(true);
       const result = await post("/board/delete", { board_no: boardList.board_no });
       if (!result) {
         alert("삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        setDeleting(false);
         setDeleteOpen(false);
         return;
       }
       navigate(-1);
+      return;
     }
     setDeleteOpen(false);
   };
@@ -103,16 +113,21 @@ export default function BoardDetail() {
     }
     // comment_userName is intentionally NOT sent - the backend derives it from the JWT so a
     // comment can never be posted "as" someone else (see boardCommentServiceImpl).
-    const result = await post('/board/comment/insert', {
-      board_no: boardList.board_no,
-      comment_content: content,
-    });
-    if (!result) {
-      alert('댓글 등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
-      return;
+    setCommentSubmitting(true);
+    try {
+      const result = await post('/board/comment/insert', {
+        board_no: boardList.board_no,
+        comment_content: content,
+      });
+      if (!result) {
+        alert('댓글 등록에 실패했습니다. 잠시 후 다시 시도해주세요.');
+        return;
+      }
+      setCommentText('');
+      await loadComments();
+    } finally {
+      setCommentSubmitting(false);
     }
-    setCommentText('');
-    loadComments();
   };
 
   const deleteComment = async (comment_no: number) => {
@@ -203,27 +218,35 @@ export default function BoardDetail() {
             댓글 {comments.length}
           </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
-            {comments.map((c) => (
-              <Box key={c.comment_no} sx={{ p: 1.5, borderRadius: '8px', bgcolor: COLORS.bg }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: COLORS.textPrimary }}>{c.comment_userName}</Typography>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Typography sx={{ fontSize: 11, color: COLORS.textTertiary }}>{c.comment_date?.substring(0, 16).replace('T', ' ')}</Typography>
-                    {c.comment_userName === currentUser && (
-                      <Button size="small" onClick={() => deleteComment(c.comment_no)} sx={{ minWidth: 0, p: 0, fontSize: 11, color: COLORS.textTertiary, '&:hover': { color: '#B3261E', background: 'none' } }}>
-                        삭제
-                      </Button>
-                    )}
+          {commentsLoading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+              {[0, 1].map((i) => (
+                <Skeleton key={i} variant="rounded" animation="wave" height={54} sx={{ borderRadius: '8px' }} />
+              ))}
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+              {comments.map((c) => (
+                <Box key={c.comment_no} sx={{ p: 1.5, borderRadius: '8px', bgcolor: COLORS.bg }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: COLORS.textPrimary }}>{c.comment_userName}</Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography sx={{ fontSize: 11, color: COLORS.textTertiary }}>{c.comment_date?.substring(0, 16).replace('T', ' ')}</Typography>
+                      {c.comment_userName === currentUser && (
+                        <Button size="small" onClick={() => deleteComment(c.comment_no)} sx={{ minWidth: 0, p: 0, fontSize: 11, color: COLORS.textTertiary, '&:hover': { color: '#B3261E', background: 'none' } }}>
+                          삭제
+                        </Button>
+                      )}
+                    </Box>
                   </Box>
+                  <Typography sx={{ fontSize: 13.5, color: COLORS.textPrimary, mt: 0.5, whiteSpace: 'pre-wrap' }}>{c.comment_content}</Typography>
                 </Box>
-                <Typography sx={{ fontSize: 13.5, color: COLORS.textPrimary, mt: 0.5, whiteSpace: 'pre-wrap' }}>{c.comment_content}</Typography>
-              </Box>
-            ))}
-            {comments.length === 0 && (
-              <Typography sx={{ fontSize: 13, color: COLORS.textTertiary }}>아직 댓글이 없습니다.</Typography>
-            )}
-          </Box>
+              ))}
+              {comments.length === 0 && (
+                <Typography sx={{ fontSize: 13, color: COLORS.textTertiary }}>아직 댓글이 없습니다.</Typography>
+              )}
+            </Box>
+          )}
 
           {currentUser ? (
             <Box display="flex" gap={1}>
@@ -235,10 +258,15 @@ export default function BoardDetail() {
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyUp={(e) => { if (e.key === 'Enter') submitComment(); }}
                 inputProps={{ maxLength: 500 }}
+                disabled={commentSubmitting}
               />
-              <Button onClick={submitComment} sx={{ bgcolor: COLORS.accent, color: '#fff', px: 3, borderRadius: '10px', '&:hover': { bgcolor: '#211F1B' } }}>
+              <LoadingButton
+                onClick={submitComment}
+                loading={commentSubmitting}
+                sx={{ bgcolor: COLORS.accent, color: '#fff', px: 3, borderRadius: '10px', flexShrink: 0, '&:hover': { bgcolor: '#211F1B' } }}
+              >
                 등록
-              </Button>
+              </LoadingButton>
             </Box>
           ) : (
             <Typography sx={{ fontSize: 13, color: COLORS.textSecondary }}>댓글을 작성하려면 로그인이 필요합니다.</Typography>
@@ -246,23 +274,25 @@ export default function BoardDetail() {
         </Box>
       </Paper>
 
-      {/* 삭제 확인 */}
-      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>정말로 삭제하시겠습니까?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => handleDelete(true)}>삭제</Button>
-          <Button onClick={() => handleDelete(false)}>취소</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        variant="delete"
+        title="정말로 삭제하시겠습니까?"
+        confirmLabel="삭제"
+        loading={deleting}
+        loadingText="삭제 중..."
+        onConfirm={() => handleDelete(true)}
+        onCancel={() => handleDelete(false)}
+      />
 
-      {/* 수정 확인 */}
-      <Dialog open={updateOpen} onClose={() => setUpdateOpen(false)}>
-        <DialogTitle>수정하시겠습니까?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => handleUpdate(true)}>수정</Button>
-          <Button onClick={() => handleUpdate(false)}>취소</Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={updateOpen}
+        variant="edit"
+        title="수정하시겠습니까?"
+        confirmLabel="수정"
+        onConfirm={() => handleUpdate(true)}
+        onCancel={() => handleUpdate(false)}
+      />
     </Box>
   );
 }

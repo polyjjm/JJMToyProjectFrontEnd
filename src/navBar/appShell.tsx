@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Button,
   CssBaseline,
@@ -19,13 +20,15 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { post } from '../common/common';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { apiOrigin, get, post } from '../common/common';
 import { PERSONAL_INFO } from '../common/personalInfo';
 import { COLORS } from '../theme';
+import { readMenuCache, writeMenuCache } from '../common/menuCache';
+import ChatPanel from '../chat/ChatPanel';
 
 const drawerWidth = 240;
 
@@ -52,6 +55,19 @@ const sectionLinks = [
   { label: 'Career', refKey: 'scrollRef3' as const },
 ];
 
+// Sidebar icon, keyed by menu_url instead of array position - the old version picked an icon by
+// raw index (0=home, 1=board, 2-4=chat, 5=weather, 6+=todo), which silently breaks any time a
+// menu item is added/removed/reordered (exactly what removing 채팅/날씨/할일 and adding
+// 대시보드 does). A URL-keyed lookup can't drift out of sync with the menu's actual shape the
+// same way - a route either has an icon here or falls back to the default, nothing shifts.
+const MENU_ICONS: Record<string, React.ReactNode> = {
+  '/': <HomeIcon fontSize="small" />,
+  '/board': <ContentPasteIcon fontSize="small" />,
+  '/dashboard': <DashboardOutlinedIcon fontSize="small" />,
+  '/tools': <BuildOutlinedIcon fontSize="small" />,
+};
+const DEFAULT_MENU_ICON = <ContentPasteIcon fontSize="small" />;
+
 // Shared style for the small uppercase group headers above a nav list
 // (design-mockup.html's .sidebar-section-label, e.g. "Workspace").
 const sectionLabelSx = {
@@ -70,7 +86,17 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
   const location = useLocation();
   const [menu, setMenu] = useState<Array<menu>>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const [unreadTotal, setUnreadTotal] = useState(0);
   const refMap = { scrollRef0, scrollRef1, scrollRef2, scrollRef3 };
+  const currentUserId = localStorage.getItem('user_id');
+  // A guest chat participant (NicknameInputPage.tsx) also sets user_id (their chosen nickname)
+  // but never gets a JWT - checking token, not user_id, is what actually distinguishes "really
+  // logged in via Kakao" from "just has a chat nickname". Without this, a guest visiting any
+  // other page would incorrectly see the chat bell/panel and the topbar's "id: / 로그아웃"
+  // state instead of "로그인" (this was already slightly wrong before the chat bell existed -
+  // the old topbar branch keyed off the same misleading check).
+  const isLoggedIn = !!localStorage.getItem('token');
 
   const handleClick = (ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -90,18 +116,61 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
   };
 
   useEffect(() => {
+    // One-time migration: sessions created before board_userName/comment ownership started
+    // being compared by real email stored a Kakao id under the 'user_email' key and never had
+    // a 'user_id' key at all (see kakaoAuth.tsx). Running with that stale shape silently breaks
+    // board edit/delete visibility, so force a clean re-login instead of limping along with it.
+    if (localStorage.getItem('token') && !localStorage.getItem('user_id')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_email');
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchMenu() {
+      // Menu structure rarely changes, and NavBar mounts once for the whole app (not per
+      // route - React Router only swaps the <Routes> subtree), so this only needs to hit the
+      // network at all once per hour per browser. See menuCache.ts for the storage + TTL.
+      const cached = readMenuCache<menu[]>();
+      if (cached) {
+        setMenu(cached);
+        return;
+      }
       const menuList = await post('/menu/list', { currentPage: 1 });
       if (menuList) {
         setMenu(menuList);
+        writeMenuCache(menuList);
       }
     }
     fetchMenu();
   }, []);
 
+  const refreshUnreadTotal = useCallback(async () => {
+    if (!isLoggedIn || !currentUserId) return;
+    try {
+      // GET (not post()) - unreadCount is a @GetMapping, and get() returns the response body
+      // as-is (one "data" unwrap needed here), unlike post()'s helper which unwraps twice.
+      const result = await get(apiOrigin + `/api/chat/unreadCount/${currentUserId}`);
+      if (result && typeof result.data === 'number') setUnreadTotal(result.data);
+    } catch {
+      // Non-fatal - the badge just stays at its last known value.
+    }
+  }, [currentUserId]);
+
+  // No dedicated "unread count changed" WebSocket event exists (see ChatRoomController's
+  // comments) - a short poll is simple and cheap enough at personal-site scale, and the panel
+  // itself does a fresher fetch whenever it's opened/a room is read (see ChatPanel.tsx).
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    refreshUnreadTotal();
+    const id = setInterval(refreshUnreadTotal, 20000);
+    return () => clearInterval(id);
+  }, [isLoggedIn, refreshUnreadTotal]);
+
   const logOut = () => {
     // Kakao's /user/unlink API requires an admin key, which can't be safely held in
     // client-side code. Logout here only clears the local session; the JWT simply expires.
+    localStorage.removeItem('user_id');
     localStorage.removeItem('user_email');
     localStorage.removeItem('token');
     navigate('/');
@@ -152,7 +221,9 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
       </Box>
 
       {/* Home page section jump links - only meaningful when parked on "/", but harmless
-          elsewhere since they just no-op if the ref isn't mounted. */}
+          elsewhere since they just no-op if the ref isn't mounted. Distinct from the header's
+          former About me/Skills/Archiving/Career buttons (now removed in favor of the chat
+          bell) - this sidebar list stays since it's a quick-jump aid, not a duplicate top-nav. */}
       <Typography sx={sectionLabelSx}>홈 바로가기</Typography>
       <List sx={{ py: 0 }}>
         {sectionLinks.map((link) => (
@@ -177,48 +248,50 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
       <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.08)' }} />
 
       <List sx={{ py: 0 }}>
-        {menu.map((value, index) => {
-          // NOTE: icon-by-index is inherited fragile behavior, not introduced by this pass -
-          // it silently breaks if the backend-driven menu's order/count changes. Left as-is
-          // since fixing it (e.g. keying icons off menu_url or an icon field from the API)
-          // is out of scope for a styling/category pass.
+        {menu.map((value) => {
           const isActive = location.pathname === value.menu_url;
+          // Menu entries are all internal SPA routes today, but this stays defensive in case a
+          // future entry ever points off-site - only internal ones should go through the
+          // client-side router.
+          const isExternal = /^https?:\/\//.test(value.menu_url);
+          const itemSx = {
+            borderRadius: '8px',
+            mb: 0.5,
+            py: 1,
+            px: 1.5,
+            color: isActive ? COLORS.sidebarTextActive : COLORS.sidebarText,
+            backgroundColor: isActive ? COLORS.accent : 'transparent',
+            '&:hover': {
+              backgroundColor: isActive ? COLORS.accent : 'rgba(255,255,255,0.06)',
+              color: COLORS.sidebarTextActive,
+            },
+          };
+          const itemContent = (
+            <>
+              <ListItemIcon sx={{ minWidth: 36, color: 'inherit', opacity: isActive ? 1 : 0.85 }}>
+                {MENU_ICONS[value.menu_url] ?? DEFAULT_MENU_ICON}
+              </ListItemIcon>
+              <ListItemText
+                primary={value.menu_name}
+                primaryTypographyProps={{ fontSize: 13.5, fontWeight: isActive ? 700 : 500 }}
+              />
+            </>
+          );
           return (
             <ListItem key={value.menu_name} disablePadding>
-              <ListItemButton
-                component="a"
-                href={value.menu_url}
-                sx={{
-                  borderRadius: '8px',
-                  mb: 0.5,
-                  py: 1,
-                  px: 1.5,
-                  color: isActive ? COLORS.sidebarTextActive : COLORS.sidebarText,
-                  backgroundColor: isActive ? COLORS.accent : 'transparent',
-                  '&:hover': {
-                    backgroundColor: isActive ? COLORS.accent : 'rgba(255,255,255,0.06)',
-                    color: COLORS.sidebarTextActive,
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 36, color: 'inherit', opacity: isActive ? 1 : 0.85 }}>
-                  {index === 0 ? (
-                    <HomeIcon fontSize="small" />
-                  ) : index === 1 ? (
-                    <ContentPasteIcon fontSize="small" />
-                  ) : index <= 4 ? (
-                    <InterpreterModeIcon fontSize="small" />
-                  ) : index <= 5 ? (
-                    <WbSunnyIcon fontSize="small" />
-                  ) : (
-                    <PlaylistAddCheckIcon fontSize="small" />
-                  )}
-                </ListItemIcon>
-                <ListItemText
-                  primary={value.menu_name}
-                  primaryTypographyProps={{ fontSize: 13.5, fontWeight: isActive ? 700 : 500 }}
-                />
-              </ListItemButton>
+              {/* Real <a> triggers a full page reload (which was the actual cause of "menu
+                  re-fetched on every navigation" - NavBar remounting from scratch each time,
+                  not the useEffect re-firing) - Link keeps navigation client-side so NavBar
+                  (and its cached menu) survives the transition. */}
+              {isExternal ? (
+                <ListItemButton component="a" href={value.menu_url} sx={itemSx}>
+                  {itemContent}
+                </ListItemButton>
+              ) : (
+                <ListItemButton component={RouterLink} to={value.menu_url} onClick={() => setMobileOpen(false)} sx={itemSx}>
+                  {itemContent}
+                </ListItemButton>
+              )}
             </ListItem>
           );
         })}
@@ -230,8 +303,9 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-      {/* AppBar - carries the hamburger (mobile only) + title, plus the login/logout + email
-          block, which intentionally stays here rather than in the sidebar (see drawerContent). */}
+      {/* AppBar - carries the hamburger (mobile only) + title, the chat bell (replaces the old
+          About me/Skills/Archiving/Career links - see MENU_ICONS comment and chat-mockup.html),
+          and the login/logout + id block. */}
       <AppBar
         position="fixed"
         elevation={0}
@@ -255,8 +329,8 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
             <Typography
               variant="h6"
               noWrap
-              component="a"
-              href="/"
+              component={RouterLink}
+              to="/"
               sx={{
                 textDecoration: 'none',
                 color: COLORS.textPrimary,
@@ -267,17 +341,34 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
             </Typography>
           </Box>
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-            {sectionLinks.map((link) => (
-              <Button key={link.label} onClick={() => handleClick(refMap[link.refKey])} sx={{ color: COLORS.textPrimary }}>
-                {link.label}
-              </Button>
-            ))}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, md: 2 } }}>
+            {/* Chat only makes sense for a logged-in identity (guests use the separate
+                NicknameInputPage entry point, not this bell) - see chat-mockup.html. */}
+            {isLoggedIn && (
+              <IconButton
+                onClick={() => setChatPanelOpen(true)}
+                sx={{
+                  bgcolor: chatPanelOpen ? COLORS.accent : COLORS.accentSoft,
+                  color: chatPanelOpen ? '#fff' : COLORS.textSecondary,
+                  borderRadius: '10px',
+                  width: 36, height: 36,
+                  '&:hover': { bgcolor: chatPanelOpen ? '#211F1B' : COLORS.accentSoft },
+                }}
+              >
+                <Badge
+                  badgeContent={unreadTotal}
+                  max={99}
+                  sx={{ '& .MuiBadge-badge': { bgcolor: '#B3403B', color: '#fff', fontWeight: 700, fontSize: 10 } }}
+                >
+                  <ChatBubbleOutlineIcon sx={{ fontSize: 18 }} />
+                </Badge>
+              </IconButton>
+            )}
 
-            {localStorage.getItem('user_email') ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {isLoggedIn ? (
+              <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
                 <Typography variant="body2" sx={{ color: COLORS.textSecondary }}>
-                  id: {localStorage.getItem('user_email')}
+                  id: {currentUserId}
                 </Typography>
                 <Button onClick={logOut} sx={{ color: COLORS.accent, fontWeight: 700 }}>
                   로그아웃
@@ -291,6 +382,14 @@ export const NavBar: React.FC<navBarProps> = ({ scrollRef0, scrollRef1, scrollRe
           </Box>
         </Toolbar>
       </AppBar>
+
+      {isLoggedIn && (
+        <ChatPanel
+          open={chatPanelOpen}
+          onClose={() => setChatPanelOpen(false)}
+          onRoomsChanged={refreshUnreadTotal}
+        />
+      )}
 
       {/* Drawer */}
       <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>

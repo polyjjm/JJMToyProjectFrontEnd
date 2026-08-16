@@ -1,18 +1,24 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import MdEditor from "../common/mdEditor";
+import LoadingButton from "../common/LoadingButton";
+import SuccessSnackbar from "../common/SuccessSnackbar";
+import ConfirmDialog from "../common/ConfirmDialog";
 import { postUpload } from "../common/common";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { COLORS } from "../theme";
 import { BoardFormState } from "./board.types";
+import { CategoryRow, FieldLabel, fieldSx, formCardSx } from "./boardFormShared";
 
 export default function boardUpdate(){
     const [flagIndex, flagIndexSet] = useState(0);
+    const [submitting, setSubmitting] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
     const [boardList, setBoard] = useState<BoardFormState>({
         board_title: '',
         board_content: '',
         board_userName: '', // 이건 string이지만 string | null 타입과 호환됨
-        board_changeThumbnail: '',
         board_categoryMain: '',
         board_categoryMid: '',
         board_categorySub: '',
@@ -25,6 +31,15 @@ export default function boardUpdate(){
     useEffect(() =>{
         if(!location.state?.boardList){
             navigate("/board", { replace: true });
+            return;
+        }
+
+        // Reachable directly by URL with a forged location.state, not just through
+        // boardDetail.tsx's "수정" button - the real enforcement is server-side
+        // (boardServiceImpl.assertOwner), this just avoids showing a form that's guaranteed
+        // to fail on submit for a logged-out visitor.
+        if (!localStorage.getItem('token')) {
+            navigate('/signin', { replace: true });
             return;
         }
 
@@ -63,11 +78,6 @@ export default function boardUpdate(){
         setBoard({...boardList , board_title : value});
     }
 
-    const changeThumbnail = (e:any) =>{
-        const {value}  =e.target
-        setBoard({...boardList , board_changeThumbnail : value});
-    }
-
     // 대/중/소 각각 자유 텍스트 입력 - 프리셋 목록에서 고르는 게 아니라 사용자가 직접 입력한다.
     const changeCategory = (level: 'board_categoryMain' | 'board_categoryMid' | 'board_categorySub') => (e:any) => {
         setBoard({...boardList , [level] : e.target.value});
@@ -77,21 +87,32 @@ export default function boardUpdate(){
         setBoard({...boardList , board_content :  e})
     }
 
-    const subMit = async (e:any) =>{
-        flagIndexSet(1);
-
+    // Runs validation up front so an incomplete form never gets a confirmation prompt for a
+    // submit that's guaranteed to fail - the dialog only opens once title/content are present.
+    const openConfirm = () => {
         if(!boardList.board_title){
             alert('제목을 입력해주세요');
-            return false;
+            return;
         }
 
         if(!boardList.board_content){
             alert('내용을 입력해주세요');
-            return false;
+            return;
         }
 
-        // 썸네일은 필수 항목이 아니다 - 있으면 쓰고 없으면 카드에서 fallback 처리된다.
-        setBoard({...boardList , board_userName :  localStorage.getItem('user_email')})
+        setConfirmOpen(true);
+    }
+
+    // Same (confirm: boolean) shape as boardDetail.tsx's handleDelete - cancel just closes the
+    // dialog with no side effects, the actual submit only runs once confirmed.
+    const subMit = async (confirm: boolean) =>{
+        if (!confirm) {
+            setConfirmOpen(false);
+            return;
+        }
+
+        setSubmitting(true);
+
         let reg = new RegExp(/<img[^>]+src=[\"']?([^>\"']+)[\"']?[^>]*>/, "g");
 
         const boardImg = boardList.board_content.match(reg);
@@ -113,12 +134,19 @@ export default function boardUpdate(){
 
         if(!result){
             alert('게시글 수정에 실패했습니다. 잠시 후 다시 시도해주세요.');
+            setSubmitting(false);
+            setConfirmOpen(false);
             return;
         }
 
         flagIndexSet(1);
+        setConfirmOpen(false);
 
-        window.location.href ='/board';
+        // See boardInsert.tsx's subMit for why this waits before the full page reload.
+        setShowSuccess(true);
+        setTimeout(() => {
+            window.location.href = '/board';
+        }, 1100);
     }
 
 
@@ -141,80 +169,103 @@ export default function boardUpdate(){
     },[flagIndex]);
 
     return (
-        <Box sx={{ mx: 'auto', maxWidth: 1200, px: { xs: 2, sm: 3 } }}>
+        <Box sx={{ mx: 'auto', maxWidth: 920, px: { xs: 2, sm: 3 }, py: { xs: 3, sm: 4 } }}>
 
-            <Box sx={{mt: '50px', fontWeight: 'bold', mb: '50px', width:'100%', textAlign:'right', fontSize: { xs: '22px', sm: '30px' }, borderBottom: `2px solid ${COLORS.border}`}}>게시글 수정</Box>
-            <Box sx={{ width:"100%" , pb:'20px'}}>
-                <TextField
-                    sx={{width:"100%"}}
-                    variant="standard"
-                    label="제목"
-                    id="title"
-                    value={boardList.board_title}
-                    placeholder="제목을 입력해주세요"
-                    name="title"
-                    onChange={changeTitle}
-                    size="small"
-                    focused
-                    inputProps={{maxLength : 50}}
+            <Box sx={{ mb: { xs: 2.5, sm: 3.5 } }}>
+                <Typography sx={{ fontSize: { xs: 20, sm: 22 }, fontWeight: 700, letterSpacing: '-0.3px', mb: 0.75, color: COLORS.textPrimary }}>
+                    게시글 수정
+                </Typography>
+                <Typography sx={{ color: COLORS.textSecondary, fontSize: 13 }}>
+                    내용을 수정하고 저장하세요.
+                </Typography>
+            </Box>
+
+            <Box sx={formCardSx}>
+                <Box sx={{ mb: 3 }}>
+                    <FieldLabel>제목</FieldLabel>
+                    <TextField
+                        sx={{ ...fieldSx, '& .MuiOutlinedInput-input': { fontSize: 18, fontWeight: 700, py: '14px' } }}
+                        placeholder="제목을 입력해주세요"
+                        value={boardList.board_title}
+                        onChange={changeTitle}
+                        inputProps={{ maxLength: 50 }}
+                    />
+                </Box>
+
+                {/* No separate thumbnail field - the card image is always the first image
+                    embedded in the content below (board_imgList[0]), so a standalone thumbnail
+                    input would just be a second, easily-out-of-sync source for the same thing. */}
+                <Box>
+                    <FieldLabel>카테고리</FieldLabel>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, maxWidth: 420 }}>
+                        <CategoryRow
+                            label="대"
+                            placeholder="예: 개발"
+                            value={boardList.board_categoryMain}
+                            onChange={changeCategory('board_categoryMain')}
+                            inputProps={{ maxLength: 50 }}
+                        />
+                        <CategoryRow
+                            label="중"
+                            placeholder="예: Frontend"
+                            value={boardList.board_categoryMid}
+                            onChange={changeCategory('board_categoryMid')}
+                            inputProps={{ maxLength: 50 }}
+                        />
+                        <CategoryRow
+                            label="소"
+                            placeholder="예: React"
+                            value={boardList.board_categorySub}
+                            onChange={changeCategory('board_categorySub')}
+                            inputProps={{ maxLength: 50 }}
+                        />
+                    </Box>
+                </Box>
+            </Box>
+
+            <Box sx={formCardSx}>
+                <FieldLabel>내용</FieldLabel>
+                <MdEditor
+                    value={boardList.board_content}
+                    onChange={eidtorValue}
+                    boardList={boardList}
+                    onImgListChange={(list) => setBoard((prev) => ({ ...prev, boardImgLegacyList: list }))}
                 />
             </Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                <Box sx={{ width: { xs: '100%', sm: 400 } }}>
-                    <TextField
-                        sx={{ width: '100%' }}
-                        label="썸네일 (선택)"
-                        onChange={changeThumbnail}
-                        variant="standard"
-                        placeholder="썸네일을 입력하지 않으면 이미지 없는 카드로 표시됩니다"
-                        focused
-                        multiline
-                        rows={4}
-                        value={boardList.board_changeThumbnail}
-                        inputProps={{maxLength : 150}}
-                    />
-                </Box>
-                {/* 3단계 카테고리: 대/중/소 모두 자유 텍스트 - 프리셋 목록 없이 직접 입력 */}
-                <Box sx={{ width: { xs: '100%', sm: 500 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        sx={{ width: '100%' }}
-                        label="대분류"
-                        placeholder="예: 개발"
-                        variant="standard"
-                        focused
-                        value={boardList.board_categoryMain}
-                        onChange={changeCategory('board_categoryMain')}
-                        inputProps={{maxLength : 50}}
-                    />
-                    <TextField
-                        sx={{ width: '100%' }}
-                        label="중분류"
-                        placeholder="예: Frontend"
-                        variant="standard"
-                        focused
-                        value={boardList.board_categoryMid}
-                        onChange={changeCategory('board_categoryMid')}
-                        inputProps={{maxLength : 50}}
-                    />
-                    <TextField
-                        sx={{ width: '100%' }}
-                        label="소분류"
-                        placeholder="예: React"
-                        variant="standard"
-                        focused
-                        value={boardList.board_categorySub}
-                        onChange={changeCategory('board_categorySub')}
-                        inputProps={{maxLength : 50}}
-                    />
-                </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.25, mt: 0.5 }}>
+                <LoadingButton
+                    variant="outlined"
+                    disabled={submitting}
+                    sx={{ borderColor: COLORS.border, color: COLORS.textSecondary, borderRadius: '10px', px: 2.75, py: 1.25 }}
+                    onClick={() => { window.history.back(); }}
+                >
+                    취소
+                </LoadingButton>
+                <LoadingButton
+                    variant="contained"
+                    loading={submitting}
+                    loadingText="수정 중..."
+                    sx={{ bgcolor: COLORS.accent, borderRadius: '10px', px: 2.75, py: 1.25, boxShadow: '0 1px 2px rgba(38,34,28,0.12)', '&:hover': { bgcolor: '#211F1B' } }}
+                    onClick={openConfirm}
+                >
+                    수정
+                </LoadingButton>
             </Box>
-            <Box sx={{paddingTop:'10px'}}>
-                <MdEditor value={boardList.board_content} onChange={eidtorValue} boardList={boardList} />
-            </Box>
-            <Box sx={{textAlign : 'center' , width:'100%' , marginTop:'50px'}}>
-                <Button variant="outlined" sx={{marginRight:'10px'}} onClick={() => {window.history.back()}}>취소</Button>
-                <Button variant="contained" sx={{ bgcolor: COLORS.accent, '&:hover': { bgcolor: '#211F1B' } }} onClick={subMit}>수정</Button>
-            </Box>
+
+            <ConfirmDialog
+                open={confirmOpen}
+                variant="edit"
+                title="게시글을 수정할까요?"
+                description="수정 내용은 즉시 게시글에 반영돼요."
+                confirmLabel="수정하기"
+                loading={submitting}
+                loadingText="수정 중..."
+                onConfirm={() => subMit(true)}
+                onCancel={() => subMit(false)}
+            />
+
+            <SuccessSnackbar open={showSuccess} message="수정완료 했습니다" onClose={() => setShowSuccess(false)} />
         </Box>
     )
 }

@@ -28,11 +28,16 @@ export interface BoardPost {
 
 // Subset of BoardPost editable through the insert/update forms, plus the upload-only fields
 // those forms need while staging content-embedded images before submit.
+//
+// NOTE: board_changeThumbnail (BoardPost's card-excerpt field) is intentionally NOT part of
+// this form anymore - the input for it was removed from boardInsert.tsx/boardUpdate.tsx since
+// the card image is already derived from board_imgList[0] and this field was going unused in
+// practice. Older posts that still have a value in that column keep displaying it in board.tsx;
+// new/edited posts just don't write to it (see boardMapper.xml boardInsert/boardUpdate).
 export interface BoardFormState {
     board_title: string;
     board_content: string;
     board_userName: string | null;
-    board_changeThumbnail: string;
     board_categoryMain: string;
     board_categoryMid: string;
     board_categorySub: string;
@@ -54,4 +59,19 @@ export interface CategoryTab {
     label: string;
     value: string; // '' means "전체" (no filter at this level)
     count: number;
+}
+
+// Derives a thumbnail URL from an original image URL. Backend naming convention (see
+// commonServiceImpl.uploadThumbnail): the thumbnail is the same object key as the original, one
+// path segment earlier under "thumbs/" - e.g. ".../jjmserverbucket/<key>" becomes
+// ".../jjmserverbucket/thumbs/<key>". This is deliberately a one-directional, string-derivable
+// convention rather than a second URL carried through board_imgList/the upload response, so no
+// DB/response schema change was needed to support thumbnails.
+//
+// Pre-existing images (uploaded before thumbnail generation existed) have no thumbs/ counterpart
+// in the bucket - callers should fall back to the original URL on a load error (see board.tsx).
+export function toThumbnailUrl(originalUrl: string): string {
+    const lastSlash = originalUrl.lastIndexOf('/');
+    if (lastSlash === -1) return originalUrl;
+    return `${originalUrl.slice(0, lastSlash)}/thumbs/${originalUrl.slice(lastSlash + 1)}`;
 }
