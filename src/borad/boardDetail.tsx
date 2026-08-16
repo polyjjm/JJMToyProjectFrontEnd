@@ -15,6 +15,7 @@ import LoadingButton from "../common/LoadingButton";
 import ConfirmDialog from "../common/ConfirmDialog";
 import { COLORS } from "../theme";
 import { BoardPost } from "./board.types";
+import MarkdownPreview from '@uiw/react-markdown-preview';
 
 interface CommentItem {
   comment_no: number;
@@ -208,8 +209,11 @@ export default function BoardDetail() {
         </Box>
 
         {/* Content */}
-        <Box>
-          <Typography variant="body1" sx={{ mt: 2, lineHeight: 1.8, color: COLORS.textPrimary }} dangerouslySetInnerHTML={{ __html: boardList.board_content }} />
+        <Box sx={{ mt: 2 }}>
+          <MarkdownPreview
+              source={boardList.board_content}
+              style={{ background: 'transparent', fontSize: 15, lineHeight: 1.8, color: COLORS.textPrimary }}
+          />
         </Box>
 
         {/* Comments - deliberately minimal: flat list, no nested replies/editing/likes */}
